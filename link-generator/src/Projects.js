@@ -273,8 +273,6 @@ class Projects extends Component {
                     action={this.state.snackbar.action}
                     SnackbarContentProps={{style: styles.snackbar}}
                 />
-
-
             </div>
         );
     }
