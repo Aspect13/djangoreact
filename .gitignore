@@ -1,0 +1,28 @@
+# See https://help.github.com/ignore-files/ for more about ignoring files.
+
+# dependencies
+/link-generator/node_modules
+
+# testing
+/link-generator/coverage
+
+# production
+/link-generator/build
+
+# misc
+/link-generator/.DS_Store
+/link-generator/.env.local
+/link-generator/.env.development.local
+/link-generator/.env.test.local
+/link-generator/.env.production.local
+
+/link-generator/npm-debug.log*
+/link-generator/yarn-debug.log*
+/link-generator/yarn-error.log*
+
+/link-generator/.idea
+/DjangoTest/.idea
+/DjangoTest/DjangoTest/__pycache__
+/DjangoTest/link_generator/__pycache__
+/DjangoTest/link_generator/migrations
+/DjangoTest/db.sqlite3

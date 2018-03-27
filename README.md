@@ -1,0 +1,2 @@
+# djangoreact
+Django-react synergy
