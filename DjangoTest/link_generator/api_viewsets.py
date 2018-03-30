@@ -1,12 +1,12 @@
 # ViewSets define the view behavior.
 from django.contrib.auth.models import User
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
-from link_generator.models import Project, LinkPack, LinkSet
-from link_generator.serializers import ProjectSerializer, LinkPackSerializer, LinkSetSerializer
+from link_generator.models import Project, LinkPack
+from link_generator.serializers import ProjectSerializer, LinkPackSerializer
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -40,10 +40,45 @@ class LinkPackViewSet(viewsets.ModelViewSet):
 	# lookup_field = 'id'
 
 	def get_queryset(self):
+		print('QQQQQQ')
 		return LinkPack.objects.filter(project__name=self.kwargs['project_name'])
 
 	def perform_create(self, serializer):
+		# todo: validate self.request
+		print(self.request.data)
 		serializer.save(created_by=self.request.user)
+
+	@detail_route(methods=['GET'])
+	def get_file(self, request, *args, **kwargs):
+		from django.http import HttpResponse
+		qs = LinkPack.objects.filter(pk=self.kwargs['pk']).first()
+
+		response = HttpResponse(qs.to_file(), content_type='text/plain')
+		response['Content-Disposition'] = 'attachment; filename="{project_name}_{panel}_links.txt"'.format(
+			project_name=qs.project.name,
+			panel=qs.panel
+		)
+		return response
+
+		# print(self.request.data)
+		# print(dir(self.request))
+		# base_url = self.request.data['base_url']
+		# panel = self.request.data['panel']
+		# extra_params = self.request.data['extra_params']
+		# link_amount = int(self.request.data['link_amount'])
+		#
+		# for i in range(link_amount):
+		#
+		# 	link_set = LinkSet()
+		# 	if base_url:
+		# 		link_set.base_url = base_url
+		# 	link_set.package_id = obj.id
+		# 	link_set.panel = panel
+		# 	link_set.extra_params = extra_params
+		# 	link_set.save()
+		# 	print('lsd', link_set.id)
+
+
 
 	# 	print('aaaaaaaaa', self.request.data)
 	# 	return self.queryset.filter(project__name=self.request.query_params.get('qqq', None))
@@ -56,9 +91,13 @@ class LinkPackViewSet(viewsets.ModelViewSet):
 	# 		return LinkPack.objects.all()
 
 
-class LinkSetViewSet(viewsets.ModelViewSet):
-	serializer_class = LinkSetSerializer
-	queryset = LinkSet.objects.all()
+# class LinkSetViewSet(viewsets.ModelViewSet):
+# 	serializer_class = LinkSetSerializer
+# 	# queryset = LinkSet.objects.all()
+#
+# 	def get_queryset(self):
+# 		print('KWARGS', self.kwargs)
+# 		return LinkSet.objects.filter(package_id=self.kwargs['linkpack_pk'])
 
 
 
@@ -76,3 +115,5 @@ class LinkSetViewSet(viewsets.ModelViewSet):
 	# 	else:
 	# 		permission_classes = [IsAdminUser]
 	# 	return [permission() for permission in permission_classes]
+
+

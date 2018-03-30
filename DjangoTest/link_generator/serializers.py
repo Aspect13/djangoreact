@@ -4,7 +4,7 @@ from rest_framework.fields import DateTimeField, SlugField
 from rest_framework.relations import HyperlinkedIdentityField
 from rest_framework_nested.relations import NestedHyperlinkedRelatedField
 
-from link_generator.models import Project, LinkPack, LinkSet
+from link_generator.models import Project, LinkPack
 
 
 # class UserSerializer(serializers.ModelSerializer):
@@ -47,13 +47,13 @@ class LinkPackSerializer(serializers.ModelSerializer):
 	creation_date = DateTimeField(format='%d-%m-%Y %H:%M:%S', read_only=True)
 
 	# links = HyperlinkedIdentityField(
-	# 	view_name='linkpacks-links-list',
-	# 	lookup_url_kwarg='linkpacks_id',
-	# 	lookup_field='id'
+	# 	view_name='project-linkpacks-linkset-list',
+	# 	lookup_url_kwarg='linkpacks',
+	# 	# lookup_field='id'
 	# )
 
 
-class LinkSetSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = LinkSet
-		fields = '__all__'
+# class LinkSetSerializer(serializers.ModelSerializer):
+# 	class Meta:
+# 		model = LinkSet
+# 		fields = '__all__'
