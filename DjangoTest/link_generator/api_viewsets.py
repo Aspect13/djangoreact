@@ -4,6 +4,7 @@ from rest_framework import viewsets, generics
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 
 from link_generator.models import Project, LinkPack
 from link_generator.serializers import ProjectSerializer, LinkPackSerializer
@@ -39,25 +40,46 @@ class LinkPackViewSet(viewsets.ModelViewSet):
 
 	# lookup_field = 'id'
 
+	# def create(self, request, *args, **kwargs):
+	# 	# data = {
+	# 	# 	**request.data,
+	# 	# 	'project': Project.objects.filter(name=self.kwargs['project_name']).first().id,
+	# 	# }
+	# 	data = request.data
+	# 	print('create!!!!', data)
+	#
+	# 	serializer = self.get_serializer(data=data,)
+	#
+	# 	print('is valid', serializer.is_valid())
+	# 	if serializer.is_valid():
+	# 		serializer.save(created_by=request.user, project=Project.objects.filter(name=self.kwargs['project_name']).first())
+	# 		return Response(serializer.data, status=HTTP_201_CREATED)
+	# 	return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
 	def get_queryset(self):
-		print('QQQQQQ')
+		print('get_queryset')
 		return LinkPack.objects.filter(project__name=self.kwargs['project_name'])
 
 	def perform_create(self, serializer):
 		# todo: validate self.request
-		print(self.request.data)
-		serializer.save(created_by=self.request.user)
+		print('perform create', self.request.data)
+		serializer.save(
+			created_by=self.request.user,
+			project=Project.objects.filter(name=self.kwargs['project_name']).first()
+		)
 
 	@detail_route(methods=['GET'])
 	def get_file(self, request, *args, **kwargs):
 		from django.http import HttpResponse
 		qs = LinkPack.objects.filter(pk=self.kwargs['pk']).first()
 
-		response = HttpResponse(qs.to_file(), content_type='text/plain')
+		response = HttpResponse(qs.to_file(), content_type='text/plain', )
 		response['Content-Disposition'] = 'attachment; filename="{project_name}_{panel}_links.txt"'.format(
 			project_name=qs.project.name,
 			panel=qs.panel
 		)
+		response['Access-Control-Expose-Headers'] = 'Content-Disposition'
 		return response
 
 		# print(self.request.data)

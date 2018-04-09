@@ -15,6 +15,7 @@ import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import {push} from "react-router-redux";
 import _get from 'lodash/get';
 import {errorToJSON} from "./authentication/loginHandler";
+import {SNACKBAR_SHOW} from "./store/actions";
 
 // import {
 //     FilteringState as ExpressFilteringState,
@@ -75,14 +76,7 @@ export const styles = {
 
 };
 
-export const snackBarInitialState = {
-    action: null,
-    message: null,
-    open: false,
-    style: {
-        textAlign: 'center',
-    }
-};
+
 
 
 // export class CustomSnackbar extends Component {
@@ -121,19 +115,19 @@ class Projects extends Component {
         // filteredProjects: [],
         newProjectName: null,
         newProjectError: null,
-        snackbar: snackBarInitialState,
+        // snackbar: snackBarInitialState,
         isLoading: true,
     };
 
 
-    showSnackbar = (message, action=null) => {
-        this.setState({snackbar: {action, message, open: true}})
-    };
+    // showSnackbar = (message, action=null) => {
+    //     this.setState({snackbar: {action, message, open: true}})
+    // };
 
 
-    handleSnackbarClose = () => {
-        this.setState({snackbar: snackBarInitialState})
-    };
+    // handleSnackbarClose = () => {
+    //     this.setState({snackbar: snackBarInitialState})
+    // };
 
     componentWillMount = () => {
         customFetch('api/projects/')
@@ -226,12 +220,12 @@ class Projects extends Component {
         customFetch('api/projects/', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name: this.state.newProjectName})})
             .then(response => {
                 if (response.ok) {
-                    this.showSnackbar(`Project ${this.state.newProjectName} successfully added`);
+                    this.props.showSnackbar(`Project ${this.state.newProjectName} successfully added`);
                     this.setState({newProjectError: null});
                 } else {
                     response.json().then(data => {
                         const errMsg = `${Object.keys(data)[0]}: ${Object.values(data)[0]}`;
-                        this.showSnackbar(errMsg);
+                        this.props.showSnackbar(errMsg);
                         this.setState({newProjectError: errMsg});
                     })
                 }
@@ -241,7 +235,7 @@ class Projects extends Component {
                 // .then(data => {
                 //     console.log('ADD PROJECT DATA', data);
                 // }))
-            .catch(err => console.log('Projects ADD error: ', this.showSnackbar(errorToJSON(err))))
+            .catch(err => console.log('Projects ADD error: ', this.props.showSnackbar(errorToJSON(err))))
     };
 
 
@@ -296,15 +290,6 @@ class Projects extends Component {
                     </Table>
 
                 </Paper>
-
-                <Snackbar
-                    open={this.state.snackbar.open}
-                    autoHideDuration={4000}
-                    onClose={this.handleSnackbarClose}
-                    message={this.state.snackbar.message}
-                    action={this.state.snackbar.action}
-                    SnackbarContentProps={{style: this.state.snackbar.style}}
-                />
             </div>
         );
     }
@@ -317,7 +302,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        move: newLocation => dispatch(push(newLocation))
+        move: newLocation => dispatch(push(newLocation)),
+        showSnackbar: (message, action=null) => dispatch({type: SNACKBAR_SHOW, payload: {action, message, open: true}}),
     }
 };
 

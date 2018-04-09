@@ -23,8 +23,10 @@ class Project(models.Model):
 
 
 class LinkPack(models.Model):
+
 	class Meta:
 		ordering = ('-creation_date', )
+
 	# class Meta:
 	# 	verbose_name = 'Ссылка'
 	# 	verbose_name_plural = 'Ссылки'

@@ -45,6 +45,22 @@ class LinkPackSerializer(serializers.ModelSerializer):
 	# project = ProjectSerializer()
 	created_by = serializers.ReadOnlyField(source='created_by.username', read_only=True)
 	creation_date = DateTimeField(format='%d-%m-%Y %H:%M:%S', read_only=True)
+	project = serializers.ReadOnlyField(source='project.name')
+
+	# def validate(self, attrs):
+	# 	print('validate attrs', attrs)
+
+	# def create(self, data):
+	# 	print('validating create', data)
+	# 	if False:
+	# 		raise serializers.ValidationError('Your data is shit')
+	# 	return data
+
+	# def validate_project(self, data):
+	# 	print('validating project', data)
+	# 	if False:
+	# 		raise serializers.ValidationError('Your data is shit')
+	# 	return data
 
 	# links = HyperlinkedIdentityField(
 	# 	view_name='project-linkpacks-linkset-list',

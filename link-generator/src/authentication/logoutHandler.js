@@ -5,6 +5,7 @@
 
 
 import {LOGOUT_REQUEST, LOGOUT_SUCCESS} from "../store/actions";
+import {TOKEN_LOCAL_KEY} from "../api";
 
 const requestLogout = () => {
     return {
@@ -22,7 +23,7 @@ const receiveLogout = () => {
 const logoutUser = () => {
     return dispatch => {
         dispatch(requestLogout());
-        localStorage.removeItem('id_token');
+        localStorage.removeItem(TOKEN_LOCAL_KEY);
         // localStorage.removeItem('access_token');
         dispatch(receiveLogout());
     }

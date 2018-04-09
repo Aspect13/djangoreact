@@ -9,6 +9,7 @@ import Project from "./Project";
 import Miner from "./components/Miner";
 import tmpProjects from "./components/tmpProjects";
 import * as queryString from "query-string";
+import SnackBar from "./SnackBar";
 
 
 
@@ -17,19 +18,19 @@ import * as queryString from "query-string";
 class App extends Component {
   render() {
       if (!this.props.isAuthenticated) {
+          console.log('NOT AUTHENTICATED!');
           return <Redirect to={{pathname: "/login", search: queryString.stringify({next: this.props.location.pathname})}} />;
       }
 
       return (
       <div>
-          <Navbar />
+          <Navbar/>
           <Switch>
               <Route exact path='/projects' component={Projects}/>
               <Route exact path='/tmptable' component={tmpProjects}/>
               <Route path='/projects/:projectName' component={Project}/>
           </Switch>
-
-
+          <SnackBar/>
       </div>
 
     );

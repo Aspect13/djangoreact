@@ -1,15 +1,16 @@
 import React from "react";
 import {
-    AppBar, Button, Dialog, Divider, FormControlLabel, Grid, IconButton, List, ListItem, ListItemText, MenuItem, Slide,
+    AppBar, Button, Dialog, Divider, FormControlLabel, Grid, IconButton, List, ListItem, ListItemText,
+    MenuItem, Slide,
     Switch,
     TextField,
     Toolbar,
     Typography
 } from "material-ui";
 import CloseIcon from "material-ui-icons/Close";
+
+import DownloadButton from "./DownloadButton";
 import {customFetch} from "./api";
-
-
 
 const Transition = props => <Slide direction="up" {...props} />;
 const styles = {
@@ -57,6 +58,10 @@ const panels = [
     },
 ];
 
+
+
+
+
 class LinkPackAddDialog extends React.Component {
 
     state = {
@@ -69,9 +74,16 @@ class LinkPackAddDialog extends React.Component {
         startPID: 1,
         extraParams: '',
         PIDTemplate: '{pid}'
+
     };
 
 
+    // downloadAction = () => <DownloadButton
+    //     color='secondary'
+    //     project={this.props.projectName}
+    //     // id={this.state.linkPackList.sort((a, b) => a.creation_date > b.creation_date ? 1 : -1)[0].id}
+    //     id={this.state.linkPackList[0].id}
+    // />;
 
     handleSubmit = event => {
         event.preventDefault();
@@ -82,14 +94,18 @@ class LinkPackAddDialog extends React.Component {
             pid_start_with: this.state.startPID,
             link_template: this.state.PIDTemplate,
             make_shuffle: this.state.shuffleParams,
-            project: 22
         };
 
         if (!this.state.ruCluster) {
             postBody = {...postBody, base_url: this.state.baseURL};
         }
 
-        this.props.handleCreate(postBody);
+
+        customFetch(`api/projects/${this.props.projectName}/linkpacks/`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(postBody)})
+            .then(response => response.json()
+                .then(data => this.props.createCallback(data)))
+            .catch(err => console.log(`project linkpacks POST${this.props.match.params.projectName} fetch error: `, err));
+
     };
 
 

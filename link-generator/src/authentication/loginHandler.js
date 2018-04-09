@@ -1,7 +1,7 @@
 // There are three possible states for our login
 // process and we need actions for each of them
 import {LOGIN_FAILURE, LOGIN_REQUEST, LOGIN_SUCCESS} from "../store/actions";
-import {API_PATH} from "../api";
+import {API_PATH, TOKEN_LOCAL_KEY} from "../api";
 
 
 const requestLogin = creds => {
@@ -62,7 +62,7 @@ const loginUser = creds => {
                     return Promise.reject(user);
                 } else {
                     // If login was successful, set the token in local storage
-                    localStorage.setItem('id_token', user.token);
+                    localStorage.setItem(TOKEN_LOCAL_KEY, user.token);
                     // localStorage.setItem('access_token', user.access_token);
                     // Dispatch the success action
                     dispatch(receiveLogin(user));

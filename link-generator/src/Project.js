@@ -4,35 +4,17 @@ import { connect } from 'react-redux';
 import {Link} from "react-router-dom";
 import {customFetch} from "./api";
 import {
-    Button, CircularProgress, IconButton, Paper, Snackbar, Table, TableBody, TableCell, TableHead, TableRow,
-    TextField
+    Button, CircularProgress, Paper, Table, TableBody, TableCell, TableHead, TableRow
 } from "material-ui";
 import {push} from "react-router-redux";
 import _get from 'lodash/get';
-import {snackBarInitialState, styles} from "./Projects";
+import {styles} from "./Projects";
 
-import DownloadIcon from 'material-ui-icons/FileDownload';
+
 import AddIcon from 'material-ui-icons/Add';
 import LinkPackAddDialog from "./LinkPackAddDialog";
-
-const DownloadButton = props => {
-
-    let handleClick = event => {
-        console.log('click props', props);
-    };
-
-
-    return (
-        <IconButton
-            color="primary"
-            aria-label="Download Links"
-            onClick={handleClick}
-            {...props}
-        >
-            <DownloadIcon/>
-        </IconButton>
-    )
-};
+import DownloadButton from "./DownloadButton";
+import {SNACKBAR_SHOW} from "./store/actions";
 
 
 class Project extends Component {
@@ -44,11 +26,13 @@ class Project extends Component {
             {label: 'ID', key: 'id'},
             {label: 'Created By', key: 'created_by'},
             {label: 'Creation Date', key: 'creation_date'},
+            {label: 'Link amount', key: 'link_amount'},
+            {label: 'Panel', key: 'panel'},
             // {label: 'Parent', key: 'project'},
-            {label: 'Download', key: 'btn', component: props => <DownloadButton {...props}/>},
+            {label: 'Download', key: 'btn', component: props => <DownloadButton {...props} />},
         ],
         isLoading: true,
-        snackbar: snackBarInitialState,
+        // snackbar: snackBarInitialState,
         dialogOpen: false,
     };
 
@@ -62,7 +46,7 @@ class Project extends Component {
         //         }))
         //     .catch(err => console.log(`project ${this.props.match.params.projectName} fetch error: `, err));
 
-        customFetch(`api/projects/${this.props.match.params.projectName}/linkpacks`)
+        customFetch(`api/projects/${this.props.match.params.projectName}/linkpacks/`)
             .then(response => response.json()
                 .then(data => {
                     console.log(`project linkpacks ${this.props.match.params.projectName} fetch data`, data);
@@ -152,57 +136,47 @@ class Project extends Component {
 
     };
 
+
+
     linkPackAddDialog = () => {
 
-        const handleSubmit = postBody => {
-            // event.preventDefault();
-            // console.log('FUUUUUUUUU')
-            // let postBody = {
-            //     base_url: this.state.baseURL,
-            //     panel: this.state.panel,
-            //     extra_params: '',
-            //     link_amount: this.state.linkAmount
-            // };
-            customFetch(`api/projects/time/linkpacks/`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(postBody)})
-            // .then(response => response.json()
-            //     .then(data => {
-            //         console.log(`project linkpacks ${this.props.match.params.projectName} fetch data`, data);
-            //         this.setState({linkPackList: data});
-            //         this.setState({isLoading: false});
-            //     }))
-                .then(response => console.log(response.status))
-                .catch(err => console.log(`project linkpacks POST${this.props.match.params.projectName} fetch error: `, err));
-        };
+        // const handleSubmit = postBody => {
+        //     customFetch(`api/projects/${this.props.match.params.projectName}/linkpacks/`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(postBody)})
+        //         .then(response => console.log(response.status))
+        //         .catch(err => console.log(`project linkpacks POST${this.props.match.params.projectName} fetch error: `, err));
+        // };
+
 
         const handleClose = () => this.setState({dialogOpen: false});
-        const downloadAction = <Button color='secondary' onClick={() => console.log('downloading links...')}>Download</Button>;
-        const handleCreate = postBody => {
-            console.log('Link ceration starrted for: ' + this.props.projectName, 'postbody:', postBody);
-            handleSubmit(postBody);
 
+        const handleCreate = (createResponseData) => {
 
             handleClose();
             this.componentWillMount();
-            this.showSnackbar('Links Created', downloadAction)
+            this.props.showSnackbar('Links Created', <DownloadButton color='secondary'{...createResponseData}/>);
+
         };
+
         return (
             <LinkPackAddDialog
                 open={this.state.dialogOpen}
                 handleClose={handleClose}
-                handleCreate={handleCreate}
+                createCallback={handleCreate}
                 projectName={this.props.match.params.projectName}
+                // showSnackbar={this.props.showSnackbar}
+
             />
-        )
+        );
     };
 
-    showSnackbar = (message, action=null) => {
-        this.setState({snackbar: {action, message, open: true}})
-    };
-
-
-    handleSnackbarClose = () => {
-        this.setState({snackbar: snackBarInitialState})
-    };
+    // showSnackbar = (message, action=null) => {
+    //     this.setState({snackbar: {action, message, open: true}})
+    // };
+    //
+    //
+    // handleSnackbarClose = () => {
+    //     this.setState({snackbar: snackBarInitialState})
+    // };
 
 
     render() {
@@ -246,14 +220,7 @@ class Project extends Component {
                 {this.linkPackAddDialog()}
 
 
-                <Snackbar
-                    open={this.state.snackbar.open}
-                    autoHideDuration={4000}
-                    onClose={this.handleSnackbarClose}
-                    message={this.state.snackbar.message}
-                    action={this.state.snackbar.action}
-                    SnackbarContentProps={{style: this.state.snackbar.style}}
-                />
+
 
 
 
@@ -270,7 +237,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        move: newLocation => dispatch(push(newLocation))
+        move: newLocation => dispatch(push(newLocation)),
+        showSnackbar: (message, action=null) => dispatch({type: SNACKBAR_SHOW, payload: {action, message, open: true}}),
     }
 };
 

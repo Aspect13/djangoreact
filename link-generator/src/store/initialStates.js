@@ -1,3 +1,5 @@
+import {TOKEN_LOCAL_KEY} from "../api";
+
 export const projectState = {
     list: [],
     selectedProject: null
@@ -14,7 +16,7 @@ export const linksState = {
 
 export const authenticationState = {
     isFetching: false,
-    isAuthenticated: !!localStorage.getItem('id_token'),
+    isAuthenticated: !!localStorage.getItem(TOKEN_LOCAL_KEY),
     usernameError: '',
     passwordError: '',
     errorMessage: '',
