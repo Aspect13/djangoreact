@@ -62,6 +62,15 @@ class LinkPackSerializer(serializers.ModelSerializer):
 	# 		raise serializers.ValidationError('Your data is shit')
 	# 	return data
 
+	# def validate(self, data):
+	# 	from django.core.exceptions import ValidationError
+	# 	print('aaaaaa', data)
+	# 	try:
+	# 		# LinkPack.validate_ranges(data)
+	# 		return data
+	# 	except ValidationError as e:
+	# 		raise serializers.ValidationError('Your data is shit {}'.format(e))
+
 	# links = HyperlinkedIdentityField(
 	# 	view_name='project-linkpacks-linkset-list',
 	# 	lookup_url_kwarg='linkpacks',

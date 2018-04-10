@@ -26,8 +26,8 @@ const styles = {
 };
 
 const URLisValid = URLString => /^https?:\/\//.test(URLString);
-const queryStringIsValid = qs => /^https?:\/\//.test(qs);
-const pidTemplateIsValid = template => /^https?:\/\//.test(template);
+const queryStringIsValid = qs => /^(?:&[^=]+=[^=&]+)*$/.test(qs);
+const pidTemplateIsValid = template => /.*{pid}.*/.test(template);
 
 const ruClusterURL = 'https://ktsrv.com/mrIWeb/mrIWeb.dll';
 
@@ -57,7 +57,6 @@ const panels = [
         label: 'CUPLI',
     },
 ];
-
 
 
 
@@ -94,6 +93,7 @@ class LinkPackAddDialog extends React.Component {
             pid_start_with: this.state.startPID,
             link_template: this.state.PIDTemplate,
             make_shuffle: this.state.shuffleParams,
+            panel: this.state.panel,
         };
 
         if (!this.state.ruCluster) {
@@ -102,9 +102,15 @@ class LinkPackAddDialog extends React.Component {
 
 
         customFetch(`api/projects/${this.props.projectName}/linkpacks/`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(postBody)})
-            .then(response => response.json()
-                .then(data => this.props.createCallback(data)))
-            .catch(err => console.log(`project linkpacks POST${this.props.match.params.projectName} fetch error: `, err));
+            .then(response => {
+
+                if (response.ok) {
+                    response.json().then(data => this.props.createCallback(data));
+                } else {
+                    response.json().then(data => this.props.showSnackbar(<span style={{color: 'red'}}>{data}</span>));
+                }}
+            )
+            .catch(err => console.log(`project linkpacks ${this.props.projectName} fetch error: `, err));
 
     };
 

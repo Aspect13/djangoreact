@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.http import QueryDict
+from django.utils.translation import gettext_lazy
 
 
 def get_chk(pid):
@@ -39,6 +41,7 @@ class LinkPack(models.Model):
 	extra_params = models.CharField(max_length=1000, blank=True)
 
 	link_amount = models.PositiveIntegerField(default=50000)
+	times_downloaded = models.PositiveIntegerField(default=0)
 	pid_start_with = models.PositiveIntegerField(default=1)
 	link_template = models.CharField(max_length=40, default='{pid}')
 
@@ -46,7 +49,24 @@ class LinkPack(models.Model):
 
 	default_params = '&id=1&rs=1'
 
+	@staticmethod
+	def validate_ranges(instance):
+		from django.db.models import Q
+		existing_fields = LinkPack.objects.filter(~Q(id=instance.id), project=instance.project, panel=instance.panel).values_list('pid_start_with', 'link_amount')
+		# .values('pid_start_with', 'link_amount')
+		# print('exist', existing_fields)
+		for s, a in existing_fields:
+			intersection = list(set(range(s, s + a)) & set(range(instance.pid_start_with, instance.pid_start_with + instance.link_amount)))
+			if bool(intersection):
+				# print('INTERSECTION: ', intersection)
+				raise ValidationError(gettext_lazy('Link ranges ({}-{}) intersect with another field in database.'.format(intersection[0], intersection[-1])))
+
+	def clean(self):
+		print('clean queryset')
+		self.validate_ranges(self)
+
 	def save(self, *args, **kwargs):
+		self.full_clean()
 		self.project.link_packs_length += 1
 		self.project.save()
 		super().save(*args, **kwargs)  # Call the "real" save() method.
@@ -110,7 +130,8 @@ class LinkPack(models.Model):
 			lnk = self.get_link(d)
 
 			io_file.write('{pid}\t{survey_link}\n'.format(pid=real_pid, survey_link=lnk))
-
+		self.times_downloaded += 1
+		self.save()
 		return io_file.getvalue()
 
 

@@ -64,10 +64,15 @@ class LinkPackViewSet(viewsets.ModelViewSet):
 	def perform_create(self, serializer):
 		# todo: validate self.request
 		print('perform create', self.request.data)
-		serializer.save(
-			created_by=self.request.user,
-			project=Project.objects.filter(name=self.kwargs['project_name']).first()
-		)
+		from django.core.exceptions import ValidationError as django_ValidationError
+		from rest_framework.serializers import ValidationError as serializer_ValidationError
+		try:
+			return serializer.save(
+				created_by=self.request.user,
+				project=Project.objects.filter(name=self.kwargs['project_name']).first()
+			)
+		except django_ValidationError as e:
+			raise serializer_ValidationError(e.messages)
 
 	@detail_route(methods=['GET'])
 	def get_file(self, request, *args, **kwargs):
