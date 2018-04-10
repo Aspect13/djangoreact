@@ -163,7 +163,7 @@ class Project extends Component {
                 handleClose={handleClose}
                 createCallback={handleCreate}
                 projectName={this.props.match.params.projectName}
-                // showSnackbar={this.props.showSnackbar}
+                showSnackbar={this.props.showSnackbar}
 
             />
         );

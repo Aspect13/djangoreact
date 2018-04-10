@@ -34,8 +34,8 @@ class DownloadButton extends React.Component {
     };
 
     render() {
-        console.log('download state', this.state);
-        console.log('download props', this.props);
+        // console.log('download state', this.state);
+        // console.log('download props', this.props);
 
         return (
             <IconButton
