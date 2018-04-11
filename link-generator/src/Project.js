@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import {Link} from "react-router-dom";
 import {customFetch} from "./api";
 import {
-    Button, CircularProgress, Paper, Table, TableBody, TableCell, TableHead, TableRow
+    Button, CircularProgress, Paper, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography
 } from "material-ui";
 import {push} from "react-router-redux";
 import _get from 'lodash/get';
@@ -14,30 +14,35 @@ import {styles} from "./Projects";
 import AddIcon from 'material-ui-icons/Add';
 import LinkPackAddDialog from "./LinkPackAddDialog";
 import DownloadButton from "./DownloadButton";
-import {SNACKBAR_SHOW} from "./store/actions";
+import {APPBAR_TITLE_CHANGE, SNACKBAR_SHOW} from "./store/actions";
 
 
 class Project extends Component {
 
-    state = {
-        linkPackList: [],
-        // projectInfo: {},
-        headers: [
-            {label: 'ID', key: 'id'},
-            {label: 'Created By', key: 'created_by'},
-            {label: 'Creation Date', key: 'creation_date'},
-            {label: 'Link amount', key: 'link_amount'},
-            {label: 'Panel', key: 'panel'},
-            // {label: 'Parent', key: 'project'},
-            {label: 'Download', key: 'btn', component: props => <DownloadButton {...props} />},
-        ],
-        isLoading: true,
-        // snackbar: snackBarInitialState,
-        dialogOpen: false,
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            linkPackList: [],
+            // projectInfo: {},
+            headers: [
+                {label: 'ID', key: 'id'},
+                {label: 'Created By', key: 'created_by'},
+                {label: 'Creation Date', key: 'creation_date'},
+                {label: 'Link amount', key: 'link_amount'},
+                {label: 'Panel', key: 'panel'},
+                // {label: 'Parent', key: 'project'},
+                {label: 'Download', key: 'btn', component: props => <DownloadButton {...props} />},
+            ],
+            isLoading: true,
+            // snackbar: snackBarInitialState,
+            dialogOpen: false,
+        };
+
+        this.loadData();
+    }
 
 
-    componentWillMount = () => {
+    loadData = () =>
         // customFetch(`api/projects/${this.props.match.params.projectName}`)
         //     .then(response => response.json()
         //         .then(data => {
@@ -54,8 +59,15 @@ class Project extends Component {
                     this.setState({isLoading: false});
                 }))
             .catch(err => console.log(`project linkpacks ${this.props.match.params.projectName} fetch error: `, err));
-    };
 
+
+    componentDidMount = () => this.props.changeTitle(
+        <span>
+            <Tooltip title="Back to projects">
+                <Link to="/projects/" style={styles.link}>Projects</Link>
+            </Tooltip> - {this.props.match.params.projectName}  |  link packs
+        </span>
+    );
 
     // filterBar = () => this.state.headers.map((item, index) =>
     //     <TableCell key={index}>
@@ -152,7 +164,7 @@ class Project extends Component {
         const handleCreate = (createResponseData) => {
 
             handleClose();
-            this.componentWillMount();
+            this.loadData();
             this.props.showSnackbar('Links Created', <DownloadButton color='secondary'{...createResponseData}/>);
 
         };
@@ -183,10 +195,6 @@ class Project extends Component {
         console.log(`project ${this.props.match.params.projectName} state`, this.state);
         return (
             <div>
-                <Link to='/projects'>
-                    <div style={{backgroundColor: 'red'}}>To Projects</div>
-                </Link>
-
                 <Paper style={styles.paper}>
                     <Table>
                         <TableHead>
@@ -237,8 +245,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        move: newLocation => dispatch(push(newLocation)),
-        showSnackbar: (message, action=null) => dispatch({type: SNACKBAR_SHOW, payload: {action, message, open: true}}),
+        // move: newLocation => dispatch(push(newLocation)),
+        // showSnackar: (message, action=null) => dispatch({type: SNACKBAR_SHOW, payload: {action, message, open: true}}),
+        changeTitle: newTitle => dispatch({type: APPBAR_TITLE_CHANGE, payload: newTitle}),
     }
 };
 

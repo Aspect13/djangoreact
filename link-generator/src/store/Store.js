@@ -12,6 +12,7 @@ import {routerMiddleware, routerReducer} from 'react-router-redux';
 import createHistory from 'history/createBrowserHistory';
 import authenticationReducer from "./authenticationReducer";
 import snackBarReducer from "./snackBarReducer";
+import appBarReducer from "./appBarReducer";
 
 export const history = createHistory();
 const historyMiddleware = routerMiddleware(history);
@@ -32,7 +33,13 @@ let middlewares = (hotReload) => {
 
 const Store = createStore(
     combineReducers({
-        projectReducer, groupReducer, linkReducer, routerReducer, authenticationReducer, snackBarReducer
+        projectReducer,
+        groupReducer,
+        linkReducer,
+        routerReducer,
+        authenticationReducer,
+        snackBarReducer,
+        appBarReducer
     }),
     middlewares(module.hot)
     // composeWithDevTools(applyMiddleware(thunk, loggerMiddleware, historyMiddleware))

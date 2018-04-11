@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import {Link} from "react-router-dom";
 import {customFetch} from "./api";
 import {
@@ -15,7 +15,7 @@ import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import {push} from "react-router-redux";
 import _get from 'lodash/get';
 import {errorToJSON} from "./authentication/loginHandler";
-import {SNACKBAR_SHOW} from "./store/actions";
+import {APPBAR_TITLE_CHANGE, SNACKBAR_SHOW} from "./store/actions";
 
 // import {
 //     FilteringState as ExpressFilteringState,
@@ -31,8 +31,6 @@ import {SNACKBAR_SHOW} from "./store/actions";
 // import Project from "./Project";
 
 
-
-
 // const columns = [
 //     { name: 'project_name', title: 'Project Name', getCellValue: row => (<Link to={`/projects/${row.project_name}`}>{row.project_name}</Link>) },
 //     { name: 'added_by', title: 'Added By' },
@@ -45,7 +43,6 @@ import {SNACKBAR_SHOW} from "./store/actions";
 //     {project_name: 'zxc', added_by: 'vovka', creation_date: '15.03.2018'},
 //     {project_name: 'rty', added_by: 'petya', creation_date: '15.03.2018'},
 // ];
-
 
 
 export const styles = {
@@ -72,11 +69,12 @@ export const styles = {
             marginLeft: 10
         }
     },
-
+    link: {
+        textDecoration: 'none',
+        color: 'inherit'
+    }
 
 };
-
-
 
 
 // export class CustomSnackbar extends Component {
@@ -103,21 +101,35 @@ export const styles = {
 
 class Projects extends Component {
 
-    state = {
-        projectList: [],
-        headers: [
-            {label: 'Project Name', key: 'name', style: {...styles.cells, ...styles.projectName}},
-            {label: 'Links Packs Inside', key: 'link_packs_length', style: styles.cells},
-            {label: 'Created By', key: 'created_by', style: styles.cells},
-            {label: 'Creation Date', key: 'creation_date', style: styles.cells},
-        ],
-        filter: {},
-        // filteredProjects: [],
-        newProjectName: null,
-        newProjectError: null,
-        // snackbar: snackBarInitialState,
-        isLoading: true,
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            projectList: [],
+            headers: [
+                {label: 'Project Name', key: 'name', style: {...styles.cells, ...styles.projectName}},
+                {label: 'Links Packs Inside', key: 'link_packs_length', style: styles.cells},
+                {label: 'Created By', key: 'created_by', style: styles.cells},
+                {label: 'Creation Date', key: 'creation_date', style: styles.cells},
+            ],
+            filter: {},
+            // filteredProjects: [],
+            newProjectName: null,
+            newProjectError: null,
+            // snackbar: snackBarInitialState,
+            isLoading: true,
+        };
+
+        this.loadData();
+    }
+
+    loadData = () => customFetch('api/projects/')
+        .then(response => response.json()
+            .then(data => {
+                console.log('projects fetch data', data);
+                this.setState({projectList: data});
+                this.setState({isLoading: false});
+            }))
+        .catch(err => console.log('Projects fetch error: ', err));
 
 
     // showSnackbar = (message, action=null) => {
@@ -129,16 +141,11 @@ class Projects extends Component {
     //     this.setState({snackbar: snackBarInitialState})
     // };
 
-    componentWillMount = () => {
-        customFetch('api/projects/')
-            .then(response => response.json()
-                .then(data => {
-                    console.log('projects fetch data', data);
-                    this.setState({projectList: data});
-                    this.setState({isLoading: false});
-                }))
-            .catch(err => console.log('Projects fetch error: ', err))
-    };
+    // componentWillMount = () => {
+    //
+    // };
+
+    componentDidMount = () => this.props.changeTitle('Projects');
 
     tableHeaders = () => this.state.headers.map((item, index) =>
         <TableCell key={index} style={styles.cells}>{item}</TableCell>
@@ -186,12 +193,13 @@ class Projects extends Component {
         // console.log('sdfsdf', this.filteredItems());
 
         if (this.state.isLoading) {
-            return <TableRow><TableCell colSpan={this.state.headers.length} style={styles.cells}><CircularProgress size={100} /></TableCell></TableRow>
+            return <TableRow><TableCell colSpan={this.state.headers.length} style={styles.cells}><CircularProgress
+                size={100}/></TableCell></TableRow>
         }
 
         if (this.filteredItems().length === 0) {
             return (
-                <TableRow style={styles.cells} >
+                <TableRow style={styles.cells}>
                     <TableCell colSpan={this.state.headers.length} style={{...styles.cells, ...styles.projectName}}>
                         No data
                     </TableCell>
@@ -208,7 +216,8 @@ class Projects extends Component {
                     onClick={() => this.props.move(`/projects/${item.name}`)}
                     style={styles.tableRow}
                 >
-                    {this.state.headers.map((header, index)=> <TableCell key={index} style={header.style}>{_get(item, header.key)}</TableCell>)}
+                    {this.state.headers.map((header, index) => <TableCell key={index}
+                                                                          style={header.style}>{_get(item, header.key)}</TableCell>)}
                 </TableRow>
             );
         })
@@ -217,7 +226,11 @@ class Projects extends Component {
     handleProjectAdd = event => {
         event.preventDefault();
         // console.log('etarget', this.state.newProjectName);
-        customFetch('api/projects/', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name: this.state.newProjectName})})
+        customFetch('api/projects/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: this.state.newProjectName})
+        })
             .then(response => {
                 if (response.ok) {
                     this.props.showSnackbar(`Project ${this.state.newProjectName} successfully added`);
@@ -229,27 +242,22 @@ class Projects extends Component {
                         this.setState({newProjectError: errMsg});
                     })
                 }
-                this.componentWillMount();
+                this.loadData();
             })
-                // response.json()
-                // .then(data => {
-                //     console.log('ADD PROJECT DATA', data);
-                // }))
+            // response.json()
+            // .then(data => {
+            //     console.log('ADD PROJECT DATA', data);
+            // }))
             .catch(err => console.log('Projects ADD error: ', this.props.showSnackbar(errorToJSON(err))))
     };
-
 
 
     render() {
         // console.log('projects state', this.state);
         return (
             <div>
-                <Link to='/'>
-                    <div style={{backgroundColor: 'red'}}>BACK HOME</div>
-                </Link>
-
                 <ExpansionPanel>
-                    <ExpansionPanelSummary expandIcon={<AddIcon />}>
+                    <ExpansionPanelSummary expandIcon={<AddIcon/>}>
                         <Typography>New Project</Typography>
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails>
@@ -296,14 +304,17 @@ class Projects extends Component {
 }
 
 const mapStateToProps = state => {
-    return {
-    };
+    return {};
 };
 
 const mapDispatchToProps = dispatch => {
     return {
         move: newLocation => dispatch(push(newLocation)),
-        showSnackbar: (message, action=null) => dispatch({type: SNACKBAR_SHOW, payload: {action, message, open: true}}),
+        showSnackbar: (message, action = null) => dispatch({
+            type: SNACKBAR_SHOW,
+            payload: {action, message, open: true}
+        }),
+        changeTitle: newTitle => dispatch({type: APPBAR_TITLE_CHANGE, payload: newTitle}),
     }
 };
 

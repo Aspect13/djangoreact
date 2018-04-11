@@ -3,15 +3,25 @@
 import React, { Component } from 'react'
 import {connect} from "react-redux";
 import logoutUser from "../authentication/logoutHandler";
+import {
+    Button
+} from "material-ui";
+import ExitToAppIcon from 'material-ui-icons/ExitToApp';
 
 class Logout extends Component {
 
     render() {
 
         return (
-            <button onClick={() => this.props.onLogoutClick()} className="btn btn-primary">
+
+            <Button
+                variant='flat'
+                color='inherit'
+                onClick={() => this.props.onLogoutClick()}
+            >
                 Logout
-            </button>
+                <ExitToAppIcon />
+            </Button>
         )
     }
 

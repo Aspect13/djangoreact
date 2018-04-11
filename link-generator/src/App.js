@@ -11,30 +11,36 @@ import tmpProjects from "./components/tmpProjects";
 import * as queryString from "query-string";
 import SnackBar from "./SnackBar";
 
+import {push} from "react-router-redux";
+import ComponentList from "./components/ComponentList";
+
 
 
 
 
 class App extends Component {
-  render() {
-      if (!this.props.isAuthenticated) {
-          console.log('NOT AUTHENTICATED!');
-          return <Redirect to={{pathname: "/login", search: queryString.stringify({next: this.props.location.pathname})}} />;
-      }
 
-      return (
-      <div>
-          <Navbar/>
-          <Switch>
-              <Route exact path='/projects' component={Projects}/>
-              <Route exact path='/tmptable' component={tmpProjects}/>
-              <Route path='/projects/:projectName' component={Project}/>
-          </Switch>
-          <SnackBar/>
-      </div>
+    render() {
+        if (!this.props.isAuthenticated) {
+            console.log('NOT AUTHENTICATED!');
+            return <Redirect
+                to={{pathname: "/login", search: queryString.stringify({next: this.props.location.pathname})}}/>;
+        }
 
-    );
-  }
+        return (
+            <div>
+                <Navbar/>
+                <Switch>
+                    <Route exact path='/' component={ComponentList}/>
+                    <Route exact path='/projects' component={Projects}/>
+                    <Route exact path='/tmptable' component={tmpProjects}/>
+                    <Route path='/projects/:projectName' component={Project}/>
+                </Switch>
+                <SnackBar/>
+            </div>
+
+        );
+    }
 }
 
 const mapStateToProps = state => {
@@ -45,7 +51,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        // move: () => dispatch(push('/projects'))
+        move: newLocation => dispatch(push(newLocation))
     }
 };
 
