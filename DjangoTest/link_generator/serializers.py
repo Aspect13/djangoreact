@@ -20,14 +20,11 @@ class ProjectSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 	created_by = serializers.ReadOnlyField(source='created_by.username')
 	creation_date = DateTimeField(format='%d-%m-%Y %H:%M:%S', read_only=True)
-
-	# created_by = UserSerializer(read_only=True)
-
-	linkpacks = HyperlinkedIdentityField(
-		view_name='project-linkpacks-list',
-		lookup_url_kwarg='project_name',
-		lookup_field='name'
-	)
+	# linkpacks = HyperlinkedIdentityField(
+	# 	view_name='project-linkpacks-list',
+	# 	lookup_url_kwarg='project_name',
+	# 	lookup_field='name'
+	# )
 
 	# linkpacks = NestedHyperlinkedRelatedField(
 	# 	many=True,
