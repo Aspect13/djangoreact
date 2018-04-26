@@ -67,7 +67,8 @@ class LinkPack(models.Model):
 
 	def save(self, *args, **kwargs):
 		self.full_clean()
-		self.project.link_packs_length += 1
+		if not self.pk:
+			self.project.link_packs_length += 1
 		self.project.save()
 		super().save(*args, **kwargs)  # Call the "real" save() method.
 

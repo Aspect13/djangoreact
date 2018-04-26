@@ -9,8 +9,6 @@ class ComponentList extends React.Component {
     state = {
         components: [
             {name: 'Link Generator', link: '/projects', icon: <ListItemIcon><LinkIcon/></ListItemIcon>, secondaryText: 'Link generation for dimensions'},
-            {name: 'Tmp', link: '/tmptable', icon: null, secondaryText: null},
-            {name: 'Miner', link: '/miner/', icon: null, secondaryText: 'Mine some xmr bitcoins!'},
         ],
     };
 

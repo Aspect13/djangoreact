@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.fields import DateTimeField, SlugField
 from rest_framework.relations import HyperlinkedIdentityField
@@ -22,7 +23,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 	creation_date = DateTimeField(format='%d-%m-%Y %H:%M:%S', read_only=True)
 	# linkpacks = HyperlinkedIdentityField(
 	# 	view_name='project-linkpacks-list',
-	# 	lookup_url_kwarg='project_name',
+	# 	lookup_url_kwarg='project_name',;
 	# 	lookup_field='name'
 	# )
 
@@ -79,3 +80,20 @@ class LinkPackSerializer(serializers.ModelSerializer):
 # 	class Meta:
 # 		model = LinkSet
 # 		fields = '__all__'
+
+class ChangePasswordSerializer(serializers.Serializer):
+	"""
+	Serializer for password change endpoint.
+	"""
+	old_password = serializers.CharField(required=True)
+	new_password = serializers.CharField(required=True)
+
+	# class Meta:
+	# 	model = User
+	# 	fields = '__all__'
+
+	def validate(self, attrs):
+		print('attrs', attrs, attrs.get('new_password'))
+		validate_password(attrs.get('new_password'))
+		print('after validation')
+		return attrs

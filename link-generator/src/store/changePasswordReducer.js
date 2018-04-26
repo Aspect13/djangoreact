@@ -1,16 +1,8 @@
-import {LOGIN_FAILURE, LOGIN_REQUEST, LOGIN_SUCCESS, LOGOUT_REQUEST, LOGOUT_SUCCESS} from "./actions";
+import {PASSWORD_CHANGE_FAILURE, PASSWORD_CHANGE_REQUEST, PASSWORD_CHANGE_SUCCESS} from "./actions";
+import {errMsg} from "./authenticationReducer";
 import {TOKEN_LOCAL_KEY} from "../api";
 
-export const errMsg = (errMsg) => {
-    delete errMsg.username;
-    delete errMsg.password;
-    if (Object.keys(errMsg).length > 0) {
-        return Object.values(errMsg)[0]
-    }
-    return null;
-};
-
-const authenticationState = {
+const changePasswordState = {
     isFetching: false,
     isAuthenticated: !!localStorage.getItem(TOKEN_LOCAL_KEY),
     usernameError: '',
@@ -19,9 +11,9 @@ const authenticationState = {
     // isAuthenticated: false
 };
 
-export default function authenticationReducer(state = authenticationState, action) {
+export default function changePasswordReducer (state = changePasswordState, action) {
     switch (action.type) {
-        case LOGIN_REQUEST:
+        case PASSWORD_CHANGE_REQUEST:
             return {
                 ...state,
                 isFetching: true,
@@ -31,7 +23,7 @@ export default function authenticationReducer(state = authenticationState, actio
                 usernameError: null,
                 passwordError: null
             };
-        case LOGIN_SUCCESS:
+        case PASSWORD_CHANGE_SUCCESS:
             return {
                 ...state,
                 isFetching: false,
@@ -40,8 +32,7 @@ export default function authenticationReducer(state = authenticationState, actio
                 usernameError: null,
                 passwordError: null
             };
-        case LOGIN_FAILURE:
-
+        case PASSWORD_CHANGE_FAILURE:
             return {
                 ...state,
                 isFetching: false,
@@ -50,28 +41,7 @@ export default function authenticationReducer(state = authenticationState, actio
                 usernameError: action.payload.username,
                 passwordError: action.payload.password,
             };
-        case LOGOUT_REQUEST:
-            return {
-                ...state,
-                isFetching: true,
-                isAuthenticated: true
-            };
-        case LOGOUT_SUCCESS:
-            return {
-                ...state,
-                isFetching: false,
-                isAuthenticated: false
-            };
         default:
             return state
     }
 };
-
-// // The quotes reducer
-// function quotes(state = {}, action) {
-//     switch (action.type) {
-//
-//         default:
-//             return state
-//     }
-// }

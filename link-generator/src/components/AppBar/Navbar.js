@@ -1,26 +1,10 @@
 import React, { Component } from 'react';
 import {connect} from "react-redux";
-import Login from "./Login";
-import Logout from "./Logout";
-import {Link} from "react-router-dom";
-import {AppBar, Button, IconButton, Toolbar, Tooltip, Typography} from "material-ui";
+import Logout from "../../deprecated/Logout";
+import {AppBar, IconButton, Toolbar, Tooltip, Typography} from "material-ui";
 import HomeIcon from 'material-ui-icons/Home';
 import {push} from "react-router-redux";
-import {APPBAR_TITLE_CHANGE} from "../store/actions";
-
-
-{/*<nav className='navbar navbar-default'>*/}
-    {/*<div className='container-fluid'>*/}
-        {/*/!*<a className="navbar-brand" href="#">QWERTY App</a>*!/*/}
-        {/*<div className='navbar-form'>*/}
-            {/*<Logout />*/}
-            {/*<br />*/}
-            {/*<Link to='/projects/'>to projects</Link>*/}
-            {/*<br />*/}
-            {/*<Link to='/miner/'>XMR</Link>*/}
-        {/*</div>*/}
-    {/*</div>*/}
-{/*</nav>*/}
+import Profile from "./Profile";
 
 const styles = {
     appBar: {
@@ -62,7 +46,8 @@ class Navbar extends Component {
                     >
                         {this.props.title}
                     </Typography>
-                    <Logout />
+                    {/*<Logout />*/}
+                    <Profile />
                 </Toolbar>
             </AppBar>
         )

@@ -2,19 +2,17 @@ import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
 import {Link} from "react-router-dom";
-import {customFetch} from "./api";
+import {customFetch} from "../../api";
 import {
-    Button, CircularProgress, Paper, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography
+    Button, CircularProgress, Paper, Table, TableBody, TableCell, TableHead, TableRow, Tooltip
 } from "material-ui";
-import {push} from "react-router-redux";
 import _get from 'lodash/get';
 import {styles} from "./Projects";
-
 
 import AddIcon from 'material-ui-icons/Add';
 import LinkPackAddDialog from "./LinkPackAddDialog";
 import DownloadButton from "./DownloadButton";
-import {APPBAR_TITLE_CHANGE, SNACKBAR_SHOW} from "./store/actions";
+import {APPBAR_TITLE_CHANGE, SNACKBAR_SHOW} from "../../store/actions";
 
 
 class Project extends Component {
@@ -51,7 +49,7 @@ class Project extends Component {
         //         }))
         //     .catch(err => console.log(`project ${this.props.match.params.projectName} fetch error: `, err));
 
-        customFetch(`api/projects/${this.props.match.params.projectName}/linkpacks/`)
+        customFetch(`projects/${this.props.match.params.projectName}/linkpacks/`)
             .then(response => response.json()
                 .then(data => {
                     console.log(`project linkpacks ${this.props.match.params.projectName} fetch data`, data);
@@ -161,25 +159,25 @@ class Project extends Component {
 
         const handleClose = () => this.setState({dialogOpen: false});
 
-        const handleCreate = (createResponseData) => {
-
+        const handleSuccess = responseData => {
             handleClose();
             this.loadData();
-            this.props.showSnackbar('Links Created', <DownloadButton color='secondary'{...createResponseData}/>);
-
+            this.props.showSnackbar('Links Created', <DownloadButton color='secondary'{...responseData}/>);
         };
+
+        const handleError = responseData => this.props.showSnackbar(<span style={{color: 'red'}}>{responseData}</span>);
 
         return (
             <LinkPackAddDialog
                 open={this.state.dialogOpen}
                 handleClose={handleClose}
-                createCallback={handleCreate}
+                successCallback={handleSuccess}
+                errorCallback={handleError}
                 projectName={this.props.match.params.projectName}
-                showSnackbar={this.props.showSnackbar}
-
             />
         );
     };
+
 
     // showSnackbar = (message, action=null) => {
     //     this.setState({snackbar: {action, message, open: true}})
@@ -245,8 +243,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        // move: newLocation => dispatch(push(newLocation)),
-        // showSnackar: (message, action=null) => dispatch({type: SNACKBAR_SHOW, payload: {action, message, open: true}}),
+        showSnackbar: (message, action=null) => dispatch({type: SNACKBAR_SHOW, payload: {action, message, open: true}}),
         changeTitle: newTitle => dispatch({type: APPBAR_TITLE_CHANGE, payload: newTitle}),
     }
 };

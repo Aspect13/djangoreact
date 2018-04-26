@@ -2,14 +2,12 @@ import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
 
-import {Link, Redirect, Route, Switch} from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Projects from "./Projects";
-import Project from "./Project";
-import Miner from "./components/Miner";
-import tmpProjects from "./components/tmpProjects";
-import * as queryString from "query-string";
-import SnackBar from "./SnackBar";
+import {Redirect, Route, Switch} from "react-router-dom";
+import Navbar from "./components/AppBar/Navbar";
+import Projects from "./components/ProjectsManager/Projects";
+import Project from "./components/ProjectsManager/Project";
+import * as queryString from "./node_modules_bypass/query-string/index";
+import SnackBar from "./components/SnackBar";
 
 import {push} from "react-router-redux";
 import ComponentList from "./components/ComponentList";
@@ -33,7 +31,6 @@ class App extends Component {
                 <Switch>
                     <Route exact path='/' component={ComponentList}/>
                     <Route exact path='/projects' component={Projects}/>
-                    <Route exact path='/tmptable' component={tmpProjects}/>
                     <Route path='/projects/:projectName' component={Project}/>
                 </Switch>
                 <SnackBar/>

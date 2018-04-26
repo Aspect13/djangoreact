@@ -1,8 +1,10 @@
 import React from "react";
-import {customFetch} from "./api";
+import {customFetch} from "../../api";
 import {CircularProgress, IconButton} from "material-ui";
 import DownloadIcon from 'material-ui-icons/FileDownload';
 import * as FileSaver from "file-saver";
+import {SNACKBAR_SHOW} from "../../store/actions";
+import {connect} from "react-redux";
 
 class DownloadButton extends React.Component {
 
@@ -14,7 +16,7 @@ class DownloadButton extends React.Component {
     handleClick = event => {
         this.setState({isFetching: true});
 
-        customFetch(`api/projects/${this.props.project}/linkpacks/${this.props.id}/get_file/`)
+        customFetch(`projects/${this.props.project}/linkpacks/${this.props.id}/get_file/`)
             .then(response => {
                 if (response.ok) {
                     response.text().then(text => {
@@ -55,4 +57,18 @@ class DownloadButton extends React.Component {
     }
 }
 
-export default DownloadButton;
+const mapStateToProps = state => {
+    return {
+    };
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+        showSnackbar: (message, action=null) => dispatch({type: SNACKBAR_SHOW, payload: {action, message, open: true}}),
+    }
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(DownloadButton);

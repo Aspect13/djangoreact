@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    AppBar, Button, Dialog, Divider, FormControlLabel, Grid, IconButton, List, ListItem, ListItemText,
+    AppBar, Button, Dialog, Divider, FormControlLabel, Grid, IconButton,
     MenuItem, Slide,
     Switch,
     TextField,
@@ -8,9 +8,7 @@ import {
     Typography
 } from "material-ui";
 import CloseIcon from "material-ui-icons/Close";
-
-import DownloadButton from "./DownloadButton";
-import {customFetch} from "./api";
+import {customFetch} from "../../api";
 
 const Transition = props => <Slide direction="up" {...props} />;
 const styles = {
@@ -101,13 +99,13 @@ class LinkPackAddDialog extends React.Component {
         }
 
 
-        customFetch(`api/projects/${this.props.projectName}/linkpacks/`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(postBody)})
+        customFetch(`projects/${this.props.projectName}/linkpacks/`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(postBody)})
             .then(response => {
 
                 if (response.ok) {
-                    response.json().then(data => this.props.createCallback(data));
+                    response.json().then(data => this.props.successCallback(data));
                 } else {
-                    response.json().then(data => this.props.showSnackbar(<span style={{color: 'red'}}>{data}</span>));
+                    response.json().then(data => this.props.errorCallback(data));
                 }}
             )
             .catch(err => console.log(`project linkpacks ${this.props.projectName} fetch error: `, err));

@@ -1,7 +1,9 @@
 import Store from "./store/Store";
 import logoutUser from "./authentication/logoutHandler";
 
-export const API_PATH = 'http://dubrovskiy:8000/linkgen/';
+export const API_PATH = module.hot? 'http://dubrovskiy:8000/api/linkgen/' : 'http://172.30.5.60/api/linkgen/';
+// export const API_PATH = 'http://dubrovskiy:8000/linkgen/';
+
 export const TOKEN_LOCAL_KEY = 'jwt';
 
 export const customFetch = async (location, config={}) => {

@@ -1,21 +1,20 @@
 import React, {Component} from 'react';
 
 import {connect} from 'react-redux';
-import {Link} from "react-router-dom";
-import {customFetch} from "./api";
+
+import {customFetch} from "../../api";
 import {
-    Button, CircularProgress, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Paper, Snackbar, Table,
+    Button, CircularProgress, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Paper, Table,
     TableBody, TableCell,
-    TableFooter, TableHead, TableRow,
+    TableHead, TableRow,
     TextField, Typography
 } from "material-ui";
 import AddIcon from 'material-ui-icons/Add';
-import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 
 import {push} from "react-router-redux";
 import _get from 'lodash/get';
-import {errorToJSON} from "./authentication/loginHandler";
-import {APPBAR_TITLE_CHANGE, SNACKBAR_SHOW} from "./store/actions";
+import {errorToJSON} from "../../authentication/loginHandler";
+import {APPBAR_TITLE_CHANGE, SNACKBAR_SHOW} from "../../store/actions";
 
 // import {
 //     FilteringState as ExpressFilteringState,
@@ -47,7 +46,7 @@ import {APPBAR_TITLE_CHANGE, SNACKBAR_SHOW} from "./store/actions";
 
 export const styles = {
     paper: {
-        minWidth: 540
+        minWidth: 829
     },
     tableRow: {
         cursor: 'pointer',
@@ -122,7 +121,7 @@ class Projects extends Component {
         this.loadData();
     }
 
-    loadData = () => customFetch('api/projects/')
+    loadData = () => customFetch('projects/')
         .then(response => response.json()
             .then(data => {
                 console.log('projects fetch data', data);
@@ -226,7 +225,7 @@ class Projects extends Component {
     handleProjectAdd = event => {
         event.preventDefault();
         // console.log('etarget', this.state.newProjectName);
-        customFetch('api/projects/', {
+        customFetch('projects/', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({name: this.state.newProjectName})
@@ -256,7 +255,7 @@ class Projects extends Component {
         // console.log('projects state', this.state);
         return (
             <div>
-                <ExpansionPanel>
+                <ExpansionPanel disabled={this.state.isLoading}>
                     <ExpansionPanelSummary expandIcon={<AddIcon/>}>
                         <Typography>New Project</Typography>
                     </ExpansionPanelSummary>

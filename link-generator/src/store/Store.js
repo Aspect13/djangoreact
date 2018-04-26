@@ -19,11 +19,11 @@ const historyMiddleware = routerMiddleware(history);
 const loggerMiddleware = createLogger();
 
 
-let middlewares = (hotReload) => {
+let middlewares = (localTest) => {
     const middlewareDebug = [thunk, loggerMiddleware, historyMiddleware];
     const middlewareLive = [thunk, historyMiddleware];
 
-    if (hotReload) {
+    if (localTest) {
         return composeWithDevTools(applyMiddleware(...middlewareDebug))
     } else {
         return applyMiddleware(...middlewareLive);

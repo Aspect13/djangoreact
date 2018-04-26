@@ -1,5 +1,6 @@
-import {linksState} from './initialStates'
-
+const linksState = {
+    list: [],
+};
 
 export default function linkReducer(state = linksState, action) {
     switch (action.type) {

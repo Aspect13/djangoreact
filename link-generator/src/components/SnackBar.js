@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from "react-redux";
 import {Snackbar} from "material-ui";
-import {SNACKBAR_RESTORE} from "./store/actions";
+import {SNACKBAR_RESTORE} from "../store/actions";
 
 class SnackBar extends React.Component {
     style = {

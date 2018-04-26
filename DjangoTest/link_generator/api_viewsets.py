@@ -1,13 +1,15 @@
 # ViewSets define the view behavior.
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, permissions
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_204_NO_CONTENT
+from rest_framework.views import APIView
 
 from link_generator.models import Project, LinkPack
-from link_generator.serializers import ProjectSerializer, LinkPackSerializer
+from link_generator.serializers import ProjectSerializer, LinkPackSerializer, ChangePasswordSerializer
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -144,3 +146,30 @@ class LinkPackViewSet(viewsets.ModelViewSet):
 	# 	return [permission() for permission in permission_classes]
 
 
+class ChangePasswordViewSet(APIView):
+	"""
+	An endpoint for changing password.
+	"""
+	# permission_classes = (permissions.IsAuthenticated, )
+	# queryset = User.objects.all()
+	serializer_class = ChangePasswordSerializer
+	# model = User
+
+	# def get_object(self, queryset=None):
+	# 	return self.request.user
+
+	def put(self, request, *args, **kwargs):
+		# self.object = self.get_object()
+		serializer = ChangePasswordSerializer(data=request.data)
+
+		if serializer.is_valid():
+			# Check old password
+			if not request.user.check_password(serializer.data.get('old_password')):
+				return Response({'old_password': ['Wrong password.']}, status=HTTP_400_BAD_REQUEST)
+			# set_password also hashes the password that the user will get
+			request.user.set_password(serializer.data.get('new_password'))
+			request.user.save()
+			update_session_auth_hash(request, request.user)
+			return Response(status=HTTP_204_NO_CONTENT)
+
+		return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)

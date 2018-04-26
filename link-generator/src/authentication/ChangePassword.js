@@ -1,13 +1,9 @@
-/**
- * Created by Artem.Dubrovskiy on 14.03.2018.
- */
 import React, {Component} from 'react';
-import {connect} from "react-redux";
-import loginUser from "../authentication/loginHandler";
-import {Redirect} from "react-router-dom";
-import {Button, Grid, Paper, TextField, Typography, withStyles} from "material-ui";
-import * as queryString from "query-string";
 
+import * as queryString from "../node_modules_bypass/query-string/index";
+import {connect} from "react-redux";
+import loginUser from "./loginHandler";
+import {Grid, Paper, TextField, Typography} from "material-ui";
 
 const styles = {
     paper: {
@@ -20,11 +16,11 @@ const styles = {
 };
 
 
-class Auth extends Component {
+class ChangePassword extends Component {
 
     state = {
-        username: '',
-        password: '',
+        old_password: null,
+        new_password: null,
     };
 
     handleLoginChange = event => {
@@ -37,14 +33,17 @@ class Auth extends Component {
 
     handleSubmit = event => {
         event.preventDefault();
-        const creds = { username: this.state.username.trim(), password: this.state.password.trim() };
+        const data = {
+            old_password: this.state.username,
+            new_password: this.state.password
+        };
         this.props.onLoginClick(creds);
     };
 
     render() {
 
         if (this.props.isAuthenticated) {
-            return <Redirect to={{pathname: queryString.parse(this.props.location.search).next || '/'}} />;
+            return <Redirect to={{pathname: queryString.parse(this.props.location.search).next || '/'}}/>;
         }
 
         return (
@@ -85,8 +84,29 @@ class Auth extends Component {
                                 autoComplete="current-password"
                             />
                         </Grid>
-                        {!!this.props.errorMessage &&
-                        <Grid item xs={12}><Typography variant="body1" color="error">{this.props.errorMessage}</Typography></Grid>}
+                        {/*<Grid item xs={12}>*/}
+                        {/*<ExpansionPanel>*/}
+                        {/*<ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>*/}
+                        {/*<Typography>Change password</Typography>*/}
+                        {/*</ExpansionPanelSummary>*/}
+                        {/*<ExpansionPanelDetails>*/}
+                        {/*<TextField*/}
+                        {/*label="New password"*/}
+                        {/*// required={true}*/}
+                        {/*fullWidth={true}*/}
+
+                        {/*// onChange={event => this.setState({newProjectName: event.target.value})}*/}
+                        {/*// error={!!this.state.newProjectError}*/}
+                        {/*// helperText={this.state.newProjectError}*/}
+                        {/*// value={this.state.filter['name']}*/}
+                        {/*/>*/}
+                        {/*</ExpansionPanelDetails>*/}
+                        {/*</ExpansionPanel>*/}
+                        {/*</Grid>*/}
+                        {
+                            !!this.props.errorMessage && <Grid item xs={12}><Typography variant="body1"
+                                                                                        color="error">{this.props.errorMessage}</Typography></Grid>
+                        }
                         <Grid item xs={12}>
                             <Button
                                 type="submit"
@@ -114,7 +134,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onLoginClick: creds => dispatch(loginUser(creds))
+        onSubmit: data => dispatch(loginUser(creds))
     }
 };
 
@@ -122,4 +142,4 @@ const mapDispatchToProps = dispatch => {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(Auth);
+)(ChangePassword);
