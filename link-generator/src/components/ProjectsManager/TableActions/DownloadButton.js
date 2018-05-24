@@ -1,9 +1,9 @@
 import React from "react";
-import {customFetch} from "../../api";
+import {customFetch} from "../../../api";
 import {CircularProgress, IconButton} from "material-ui";
 import DownloadIcon from 'material-ui-icons/FileDownload';
 import * as FileSaver from "file-saver";
-import {SNACKBAR_SHOW} from "../../store/actions";
+import {SNACKBAR_SHOW} from "../../../store/actions";
 import {connect} from "react-redux";
 
 class DownloadButton extends React.Component {

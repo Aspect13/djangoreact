@@ -1,9 +1,11 @@
 import React, {Component} from 'react';
 
-import * as queryString from "../node_modules_bypass/query-string/index";
 import {connect} from "react-redux";
-import loginUser from "./loginHandler";
-import {Grid, Paper, TextField, Typography} from "material-ui";
+import {errorToJSON} from "./loginHandler";
+import {Button, Grid, Paper, TextField, Typography} from "material-ui";
+import {customFetch} from "../api";
+import {SNACKBAR_SHOW} from "../store/actions";
+import {push} from "react-router-redux";
 
 const styles = {
     paper: {
@@ -21,30 +23,64 @@ class ChangePassword extends Component {
     state = {
         old_password: null,
         new_password: null,
+        new_password_repeat: null,
+        errorMessage: null,
     };
 
-    handleLoginChange = event => {
-        this.setState({username: event.target.value})
+    handleOldPasswordChange = event => {
+        this.setState({old_password: event.target.value})
     };
 
-    handlePasswordChange = event => {
-        this.setState({password: event.target.value})
+    handleNewPasswordChange = event => {
+        this.setState({new_password: event.target.value})
+    };
+
+    handleRepeatPasswordChange = event => {
+        this.setState({new_password_repeat: event.target.value})
     };
 
     handleSubmit = event => {
         event.preventDefault();
-        const data = {
-            old_password: this.state.username,
-            new_password: this.state.password
-        };
-        this.props.onLoginClick(creds);
+        let errMsg;
+
+        if (this.state.new_password !== this.state.new_password_repeat) {
+            errMsg = 'Passwords must match';
+            this.props.showSnackbar(errMsg);
+            this.setState({
+                errorMessage: errMsg
+            });
+            return
+        }
+
+        customFetch('change_password/', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                old_password: this.state.old_password,
+                new_password: this.state.new_password
+            })
+        }).then(response => {
+            if (response.ok) {
+                this.props.showSnackbar('Password change success');
+                this.props.move('/');
+            } else {
+                response.json().then(data => {
+                    errMsg = `${Object.keys(data)[0]}: ${Object.values(data)[0]}`;
+                    console.log('Change password error', errMsg);
+                    this.props.showSnackbar(errMsg);
+                    this.setState({
+                        errorMessage: errMsg
+                    });
+                })
+            }
+        })
+        .catch(err => {
+            console.log('Change password error', err);
+            this.props.showSnackbar(errorToJSON(err));
+        });
     };
 
     render() {
-
-        if (this.props.isAuthenticated) {
-            return <Redirect to={{pathname: queryString.parse(this.props.location.search).next || '/'}}/>;
-        }
 
         return (
             <Paper elevation={5} style={styles.paper}>
@@ -57,55 +93,42 @@ class ChangePassword extends Component {
                         alignItems="center"
                     >
                         <Grid item xs={12}>
-                            <Typography variant="title">Please authorize to continue</Typography>
-                        </Grid>
-                        <Grid item xs={12}>
                             <TextField
-                                label="Login"
-                                name="login"
-                                error={!!this.props.usernameError}
-                                helperText={this.props.usernameError}
-                                onChange={this.handleLoginChange}
-                                // required={true}
+                                label="Old password"
+                                name="password_old"
+                                error={false}
+                                helperText={''}
+                                type="password"
+                                onChange={this.handleOldPasswordChange}
                                 margin="normal"
-                                autoComplete="username"
                             />
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
-                                label="Password"
-                                name="password"
-                                error={!!this.props.passwordError}
-                                helperText={this.props.passwordError}
+                                label="New password"
+                                name="password_new"
+                                error={false}
+                                helperText={''}
                                 type="password"
-                                onChange={this.handlePasswordChange}
-                                // required={true}
+                                onChange={this.handleNewPasswordChange}
                                 margin="normal"
                                 autoComplete="current-password"
                             />
                         </Grid>
-                        {/*<Grid item xs={12}>*/}
-                        {/*<ExpansionPanel>*/}
-                        {/*<ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>*/}
-                        {/*<Typography>Change password</Typography>*/}
-                        {/*</ExpansionPanelSummary>*/}
-                        {/*<ExpansionPanelDetails>*/}
-                        {/*<TextField*/}
-                        {/*label="New password"*/}
-                        {/*// required={true}*/}
-                        {/*fullWidth={true}*/}
-
-                        {/*// onChange={event => this.setState({newProjectName: event.target.value})}*/}
-                        {/*// error={!!this.state.newProjectError}*/}
-                        {/*// helperText={this.state.newProjectError}*/}
-                        {/*// value={this.state.filter['name']}*/}
-                        {/*/>*/}
-                        {/*</ExpansionPanelDetails>*/}
-                        {/*</ExpansionPanel>*/}
-                        {/*</Grid>*/}
+                        <Grid item xs={12}>
+                            <TextField
+                                label="New password again"
+                                name="password_repeat"
+                                error={this.state.new_password_repeat && this.state.new_password !== this.state.new_password_repeat}
+                                helperText={this.state.new_password_repeat && this.state.new_password !== this.state.new_password_repeat && 'Passwords must match'}
+                                type="password"
+                                onChange={this.handleRepeatPasswordChange}
+                                margin="normal"
+                            />
+                        </Grid>
                         {
-                            !!this.props.errorMessage && <Grid item xs={12}><Typography variant="body1"
-                                                                                        color="error">{this.props.errorMessage}</Typography></Grid>
+                            !!this.state.errorMessage && <Grid item xs={12}><Typography variant="body1"
+                                                                                        color="error">{this.state.errorMessage}</Typography></Grid>
                         }
                         <Grid item xs={12}>
                             <Button
@@ -113,7 +136,7 @@ class ChangePassword extends Component {
                                 variant="raised"
                                 color="primary"
                             >
-                                Login
+                                Submit
                             </Button>
                         </Grid>
                     </Grid>
@@ -125,16 +148,16 @@ class ChangePassword extends Component {
 
 const mapStateToProps = state => {
     return {
-        errorMessage: state.authenticationReducer.errorMessage,
-        isAuthenticated: state.authenticationReducer.isAuthenticated,
-        usernameError: state.authenticationReducer.usernameError,
-        passwordError: state.authenticationReducer.passwordError,
     };
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        onSubmit: data => dispatch(loginUser(creds))
+        showSnackbar: (message, action = null) => dispatch({
+            type: SNACKBAR_SHOW,
+            payload: {action, message, open: true}
+        }),
+        move: newLocation => dispatch(push(newLocation)),
     }
 };
 

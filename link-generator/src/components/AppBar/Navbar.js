@@ -24,7 +24,7 @@ class Navbar extends Component {
 
 
     render() {
-        console.log('nav props', this.props);
+        // console.log('nav props', this.props);
         return (
 
             <AppBar style={styles.appBar}>

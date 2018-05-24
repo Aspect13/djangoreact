@@ -1,6 +1,8 @@
 # ViewSets define the view behavior.
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
+
 from rest_framework import viewsets, generics, permissions
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -11,6 +13,8 @@ from rest_framework.views import APIView
 from link_generator.models import Project, LinkPack
 from link_generator.serializers import ProjectSerializer, LinkPackSerializer, ChangePasswordSerializer
 
+from django.core.exceptions import ValidationError as django_ValidationError
+from rest_framework.serializers import ValidationError as serializer_ValidationError
 
 class ProjectViewSet(viewsets.ModelViewSet):
 	queryset = Project.objects.all()
@@ -58,21 +62,25 @@ class LinkPackViewSet(viewsets.ModelViewSet):
 	# 		return Response(serializer.data, status=HTTP_201_CREATED)
 	# 	return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
-
 	def get_queryset(self):
-		print('get_queryset')
+		get_object_or_404(Project.objects.filter(name=self.kwargs['project_name']))
 		return LinkPack.objects.filter(project__name=self.kwargs['project_name'])
 
 	def perform_create(self, serializer):
 		# todo: validate self.request
 		print('perform create', self.request.data)
-		from django.core.exceptions import ValidationError as django_ValidationError
-		from rest_framework.serializers import ValidationError as serializer_ValidationError
 		try:
 			return serializer.save(
 				created_by=self.request.user,
 				project=Project.objects.filter(name=self.kwargs['project_name']).first()
 			)
+		except django_ValidationError as e:
+			raise serializer_ValidationError(e.messages)
+
+	def perform_update(self, serializer):
+		print('perform update', self.request.data)
+		try:
+			return serializer.save()
 		except django_ValidationError as e:
 			raise serializer_ValidationError(e.messages)
 
@@ -88,6 +96,10 @@ class LinkPackViewSet(viewsets.ModelViewSet):
 		)
 		response['Access-Control-Expose-Headers'] = 'Content-Disposition'
 		return response
+
+	# def delete(self, request, *args, **kwargs):
+	# 	print('DELETE asdadasd')
+	# 	print(request)
 
 		# print(self.request.data)
 		# print(dir(self.request))

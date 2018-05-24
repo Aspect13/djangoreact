@@ -4,15 +4,25 @@ import { connect } from 'react-redux';
 import {Link} from "react-router-dom";
 import {customFetch} from "../../api";
 import {
-    Button, CircularProgress, Paper, Table, TableBody, TableCell, TableHead, TableRow, Tooltip
+    Button, CircularProgress, Grid, IconButton, Paper, Table, TableBody, TableCell, TableHead, TableRow, Tooltip
 } from "material-ui";
 import _get from 'lodash/get';
 import {styles} from "./Projects";
 
 import AddIcon from 'material-ui-icons/Add';
+import DeleteIcon from 'material-ui-icons/Delete';
+import EditIcon from 'material-ui-icons/Edit';
+import CopyIcon from 'material-ui-icons/ContentCopy';
+
 import LinkPackAddDialog from "./LinkPackAddDialog";
-import DownloadButton from "./DownloadButton";
-import {APPBAR_TITLE_CHANGE, SNACKBAR_SHOW} from "../../store/actions";
+import DownloadButton from "./TableActions/DownloadButton";
+import {
+    APPBAR_TITLE_CHANGE, LINK_PACK_ADD, LINK_PACK_COPY, LINK_PACK_DIALOG_OPEN_TOGGLE, LINK_PACK_EDIT,
+    LINK_PACK_STATE_CHANGE,
+    SNACKBAR_SHOW
+} from "../../store/actions";
+import DeleteLinksButton from "./TableActions/DeleteLinksButton";
+import {push} from "react-router-redux";
 
 
 class Project extends Component {
@@ -21,41 +31,64 @@ class Project extends Component {
         super(props);
         this.state = {
             linkPackList: [],
-            // projectInfo: {},
             headers: [
                 {label: 'ID', key: 'id'},
                 {label: 'Created By', key: 'created_by'},
                 {label: 'Creation Date', key: 'creation_date'},
                 {label: 'Link amount', key: 'link_amount'},
                 {label: 'Panel', key: 'panel'},
-                // {label: 'Parent', key: 'project'},
-                {label: 'Download', key: 'btn', component: props => <DownloadButton {...props} />},
+                {label: 'Actions', key: 'actions', component: this.actionSection},
             ],
             isLoading: true,
-            // snackbar: snackBarInitialState,
-            dialogOpen: false,
+            projectExists: true,
         };
 
         this.loadData();
     }
 
+    actionSection = props => (
+        <div>
+            <Tooltip title="Download">
+                <DownloadButton {...props} />
+            </Tooltip>
+            <Tooltip title="Edit">
+                <IconButton
+                    color="primary"
+                    aria-label="Edit Links"
+                    onClick={() => this.props.linkPackEdit(this.props.match.params.projectName, props)}
+                >
+                    <EditIcon/>
+                </IconButton>
+            </Tooltip>
+            <Tooltip title="Copy">
+                <IconButton
+                    color="primary"
+                    aria-label="Copy Job"
+                    onClick={() => this.props.linkPackCopy(this.props.match.params.projectName, props)}
+                >
+                    <CopyIcon/>
+                </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete">
+                <DeleteLinksButton {...props} reload={this.loadData}/>
+            </Tooltip>
+        </div>
+    );
+
 
     loadData = () =>
-        // customFetch(`api/projects/${this.props.match.params.projectName}`)
-        //     .then(response => response.json()
-        //         .then(data => {
-        //             console.log(`project ${this.props.match.params.projectName} fetch data`, data);
-        //             this.setState({projectInfo: data});
-        //         }))
-        //     .catch(err => console.log(`project ${this.props.match.params.projectName} fetch error: `, err));
-
         customFetch(`projects/${this.props.match.params.projectName}/linkpacks/`)
-            .then(response => response.json()
-                .then(data => {
-                    console.log(`project linkpacks ${this.props.match.params.projectName} fetch data`, data);
-                    this.setState({linkPackList: data});
-                    this.setState({isLoading: false});
-                }))
+            .then(response => {
+                if (!response.ok) {
+                    this.setState({projectExists: false});
+                    return [];
+                }
+                return response.json()
+            }).then(data => {
+                console.log(`project linkpacks ${this.props.match.params.projectName} fetch data`, data);
+                this.setState({linkPackList: data});
+                this.setState({isLoading: false});
+            })
             .catch(err => console.log(`project linkpacks ${this.props.match.params.projectName} fetch error: `, err));
 
 
@@ -63,48 +96,9 @@ class Project extends Component {
         <span>
             <Tooltip title="Back to projects">
                 <Link to="/projects/" style={styles.link}>Projects</Link>
-            </Tooltip> - {this.props.match.params.projectName}  |  link packs
+            </Tooltip>  >  {this.props.match.params.projectName}  |  link packs
         </span>
     );
-
-    // filterBar = () => this.state.headers.map((item, index) =>
-    //     <TableCell key={index}>
-    //         <TextField
-    //             key={index}
-    //             label={item.label}
-    //             // error={!!this.props.usernameError}
-    //             onChange={this.handleFilterChange}
-    //             placeholder="Filter..."
-    //             margin="none"
-    //             fullWidth={true}
-    //             inputProps={{
-    //                 colname: item.key
-    //             }}
-    //         />
-    //     </TableCell>
-    // );
-
-    // handleFilterChange = event => {
-    //     // console.log(event.target);
-    //     this.setState({
-    //         filter: {
-    //             ...this.state.filter,
-    //             [event.target.getAttribute("colname")]: event.target.value
-    //         }
-    //     })
-    // };
-
-    // filteredItems = () =>
-    //     this.state.linkPackList.filter((projectItem, projectIndex) => {
-    //
-    //         let filterResult = Object.keys(this.state.filter).every((filterItem, filterIndex) =>
-    //             _get(projectItem, filterItem).toLowerCase().startsWith(this.state.filter[filterItem].toLowerCase())
-    //         );
-    //
-    //         // console.log('flt result', filterResult);
-    //         return Object.is(filterResult, undefined) ? true : filterResult;
-    //
-    //     });
 
 
     tableHeaders = () => this.state.headers.map((item, index) =>
@@ -136,8 +130,6 @@ class Project extends Component {
             <TableRow
                 hover
                 key={item.id}
-                // onClick={() => this.props.move(`/projects/${item.name}`)}
-                // style={styles.tableRow}
             >
                 {this.getDataRow(item)}
 
@@ -147,50 +139,26 @@ class Project extends Component {
     };
 
 
+    deleteProjectHandler = () => {
+        customFetch(`projects/${this.props.match.params.projectName}/`, {method: 'DELETE'})
+            .then(response => {
+                if (response.ok) {
+                    this.props.showSnackbar('Project delete success');
+                    this.props.move('/projects/')
+                } else {
+                    this.props.showSnackbar('Project delete error occurred');
+                }
+            })
+            .catch(err => {
+                console.log(`project ${this.props.match.params.projectName} project delete error: `, err);
+                this.props.showSnackbar('Project delete error occurred');
+            });
 
-    linkPackAddDialog = () => {
-
-        // const handleSubmit = postBody => {
-        //     customFetch(`api/projects/${this.props.match.params.projectName}/linkpacks/`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(postBody)})
-        //         .then(response => console.log(response.status))
-        //         .catch(err => console.log(`project linkpacks POST${this.props.match.params.projectName} fetch error: `, err));
-        // };
-
-
-        const handleClose = () => this.setState({dialogOpen: false});
-
-        const handleSuccess = responseData => {
-            handleClose();
-            this.loadData();
-            this.props.showSnackbar('Links Created', <DownloadButton color='secondary'{...responseData}/>);
-        };
-
-        const handleError = responseData => this.props.showSnackbar(<span style={{color: 'red'}}>{responseData}</span>);
-
-        return (
-            <LinkPackAddDialog
-                open={this.state.dialogOpen}
-                handleClose={handleClose}
-                successCallback={handleSuccess}
-                errorCallback={handleError}
-                projectName={this.props.match.params.projectName}
-            />
-        );
     };
 
 
-    // showSnackbar = (message, action=null) => {
-    //     this.setState({snackbar: {action, message, open: true}})
-    // };
-    //
-    //
-    // handleSnackbarClose = () => {
-    //     this.setState({snackbar: snackBarInitialState})
-    // };
-
-
     render() {
-        console.log(`project ${this.props.match.params.projectName} state`, this.state);
+        // console.log(`project ${this.props.match.params.projectName} state`, this.state);
         return (
             <div>
                 <Paper style={styles.paper}>
@@ -204,29 +172,63 @@ class Project extends Component {
                         </TableHead>
                         <TableBody>
 
-                            {this.tableBody()}
-
-                            <TableRow style={styles.cells}>
+                            {this.state.projectExists? this.tableBody() : <TableRow style={styles.cells}>
                                 <TableCell colSpan={this.state.headers.length} style={{...styles.cells, ...styles.projectName}}>
-                                    <Button
-                                        variant='raised'
-                                        color='primary'
-                                        onClick={() => this.setState({dialogOpen: true})}
-                                    >
-                                        New Link Pack <AddIcon />
-                                    </Button>
+                                    Project doesn't exist
                                 </TableCell>
-                            </TableRow>
+                            </TableRow>}
 
                         </TableBody>
                     </Table>
+
+                    <Grid container
+                          spacing={24}
+                          direction="row"
+                          justify="center"
+                          alignItems="center"
+                          style={{margin: 0, width: '100%'}}
+                    >
+                        <Grid item
+                              xs={12}
+                              sm={3}
+                              // md={2}
+                              lg={2}
+                              style={{textAlign: 'center'}}
+                        >
+                            <Button
+                                variant='raised'
+                                color='primary'
+                                onClick={() => this.props.linkPackAdd(this.props.match.params.projectName)}
+                                disabled={!this.state.projectExists}
+                            >
+                                New Link Pack <AddIcon/>
+                            </Button>
+                        </Grid>
+                        <Grid item
+                              xs={12}
+                              sm={3}
+                              // md={2}
+                              lg={2}
+                              style={{textAlign: 'center'}}
+                        >
+                            <Button
+                                variant='raised'
+                                color='secondary'
+                                onClick={this.deleteProjectHandler}
+                                disabled={!this.state.projectExists}
+                            >
+                                Delete project <DeleteIcon/>
+                            </Button>
+                        </Grid>
+                    </Grid>
+
                 </Paper>
 
 
-                {this.linkPackAddDialog()}
-
-
-
+                <LinkPackAddDialog
+                    reload={this.loadData}
+                    projectName={this.props.match.params.projectName}
+                />
 
 
 
@@ -245,6 +247,11 @@ const mapDispatchToProps = dispatch => {
     return {
         showSnackbar: (message, action=null) => dispatch({type: SNACKBAR_SHOW, payload: {action, message, open: true}}),
         changeTitle: newTitle => dispatch({type: APPBAR_TITLE_CHANGE, payload: newTitle}),
+        move: newLocation => dispatch(push(newLocation)),
+        dialogToggle: () => dispatch({type: LINK_PACK_DIALOG_OPEN_TOGGLE}),
+        linkPackAdd: projectName => dispatch({type: LINK_PACK_ADD, payload: {projectName}}),
+        linkPackEdit: (projectName, newState) => dispatch({type: LINK_PACK_EDIT, payload: {projectName, newState}}),
+        linkPackCopy: (projectName, newState) => dispatch({type: LINK_PACK_COPY, payload: {projectName, newState}}),
     }
 };
 

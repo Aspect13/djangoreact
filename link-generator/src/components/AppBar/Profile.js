@@ -7,6 +7,8 @@ import FingerprintIcon from 'material-ui-icons/Fingerprint';
 import {connect} from "react-redux";
 import logoutUser from "../../authentication/logoutHandler";
 import {Link} from "react-router-dom";
+import {APPBAR_TITLE_CHANGE} from "../../store/actions";
+import {push} from "react-router-redux";
 
 class Profile extends React.Component {
 
@@ -22,6 +24,12 @@ class Profile extends React.Component {
 
     handleMenuClose = () => {
         this.setState({ anchorEl: null });
+    };
+
+    onPasswordChangeClick = () => {
+        this.handleMenuClose();
+        this.props.changeTitle('Password Change');
+        this.props.move('/change_password');
     };
 
 
@@ -51,7 +59,7 @@ class Profile extends React.Component {
                     open={Boolean(this.state.anchorEl)}
                     onClose={this.handleMenuClose}
                 >
-                    <MenuItem onClick={this.handleMenuClose}>
+                    <MenuItem onClick={this.onPasswordChangeClick}>
                         <ListItemIcon>
                             <FingerprintIcon />
                         </ListItemIcon>
@@ -77,7 +85,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onLogoutClick: () => dispatch(logoutUser())
+        onLogoutClick: () => dispatch(logoutUser()),
+        move: newLocation => dispatch(push(newLocation)),
+        changeTitle: newTitle => dispatch({type: APPBAR_TITLE_CHANGE, payload: newTitle}),
     }
 };
 

@@ -44,7 +44,7 @@ const loginUser = creds => {
         headers: { 'Content-Type':'application/json' },
         body: JSON.stringify(creds)
     };
-    console.log('login conf', config);
+    // console.log('login conf', config);
     return dispatch => {
         // We dispatch requestLogin to kickoff the call to the API
         // dispatch(requestLogin(creds));

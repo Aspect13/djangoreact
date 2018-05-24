@@ -70,7 +70,8 @@ export const styles = {
     },
     link: {
         textDecoration: 'none',
-        color: 'inherit'
+        color: 'inherit',
+        textShadow: '3px 3px 3px black',
     }
 
 };
@@ -124,25 +125,12 @@ class Projects extends Component {
     loadData = () => customFetch('projects/')
         .then(response => response.json()
             .then(data => {
-                console.log('projects fetch data', data);
+                // console.log('projects fetch data', data);
                 this.setState({projectList: data});
                 this.setState({isLoading: false});
             }))
         .catch(err => console.log('Projects fetch error: ', err));
 
-
-    // showSnackbar = (message, action=null) => {
-    //     this.setState({snackbar: {action, message, open: true}})
-    // };
-
-
-    // handleSnackbarClose = () => {
-    //     this.setState({snackbar: snackBarInitialState})
-    // };
-
-    // componentWillMount = () => {
-    //
-    // };
 
     componentDidMount = () => this.props.changeTitle('Projects');
 
@@ -192,8 +180,13 @@ class Projects extends Component {
         // console.log('sdfsdf', this.filteredItems());
 
         if (this.state.isLoading) {
-            return <TableRow><TableCell colSpan={this.state.headers.length} style={styles.cells}><CircularProgress
-                size={100}/></TableCell></TableRow>
+            return (
+                <TableRow>
+                    <TableCell colSpan={this.state.headers.length} style={styles.cells}>
+                        <CircularProgress size={100}/>
+                    </TableCell>
+                </TableRow>
+            )
         }
 
         if (this.filteredItems().length === 0) {
@@ -247,7 +240,10 @@ class Projects extends Component {
             // .then(data => {
             //     console.log('ADD PROJECT DATA', data);
             // }))
-            .catch(err => console.log('Projects ADD error: ', this.props.showSnackbar(errorToJSON(err))))
+            .catch(err => {
+                console.log('Projects ADD error: ');
+                this.props.showSnackbar(errorToJSON(err))
+            })
     };
 
 

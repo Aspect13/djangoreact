@@ -13,6 +13,7 @@ import createHistory from 'history/createBrowserHistory';
 import authenticationReducer from "./authenticationReducer";
 import snackBarReducer from "./snackBarReducer";
 import appBarReducer from "./appBarReducer";
+import linkPackDialogReducer from "./linkPackDialogReducer";
 
 export const history = createHistory();
 const historyMiddleware = routerMiddleware(history);
@@ -39,7 +40,8 @@ const Store = createStore(
         routerReducer,
         authenticationReducer,
         snackBarReducer,
-        appBarReducer
+        appBarReducer,
+        linkPackDialogReducer
     }),
     middlewares(module.hot)
     // composeWithDevTools(applyMiddleware(thunk, loggerMiddleware, historyMiddleware))

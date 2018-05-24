@@ -9,6 +9,14 @@ import {
 } from "material-ui";
 import CloseIcon from "material-ui-icons/Close";
 import {customFetch} from "../../api";
+import {
+    APPBAR_TITLE_CHANGE, LINK_PACK_DIALOG_OPEN_TOGGLE, LINK_PACK_STATE_CHANGE,
+    SNACKBAR_SHOW
+} from "../../store/actions";
+import {connect} from "react-redux";
+import {push} from "react-router-redux";
+import linkPackDialogReducer, {ruClusterURL} from "../../store/linkPackDialogReducer";
+import DownloadButton from "./TableActions/DownloadButton";
 
 const Transition = props => <Slide direction="up" {...props} />;
 const styles = {
@@ -26,8 +34,6 @@ const styles = {
 const URLisValid = URLString => /^https?:\/\//.test(URLString);
 const queryStringIsValid = qs => /^(?:&[^=]+=[^=&]+)*$/.test(qs);
 const pidTemplateIsValid = template => /.*{pid}.*/.test(template);
-
-const ruClusterURL = 'https://ktsrv.com/mrIWeb/mrIWeb.dll';
 
 const panels = [
     {
@@ -61,18 +67,39 @@ const panels = [
 
 class LinkPackAddDialog extends React.Component {
 
-    state = {
-        ruCluster: true,
-        shuffleParams: true,
-        baseURL: ruClusterURL,
-        // panel: panels.filter(item => item.value === 'GEN25')[0],
-        panel: 'GEN25',
-        linkAmount: 50000,
-        startPID: 1,
-        extraParams: '',
-        PIDTemplate: '{pid}'
+    // state = {
+    //     ruCluster: true,
+    //     shuffleParams: true,
+    //     baseURL: ruClusterURL,
+    //     panel: 'GEN25',
+    //     linkAmount: 50000,
+    //     startPID: 1,
+    //     extraParams: '',
+    //     PIDTemplate: '{pid}',
+    //     // submitMethod: this.props.submitMethod || 'POST',
+    //     // submitText: this.props.submitText || 'Create',
+    //     // titleText: this.props.titleText || `Create links for project: ${this.props.projectName}`
+    // };
 
-    };
+    // componentDidUpdate = () => {
+    //     this.props.loadFromProps && console.log('loading from props: ', this.props);
+    //     this.props.loadFromProps && this.loadStateFromProps()
+    // };
+
+    // loadStateFromProps = () => {
+    //     this.setState({
+    //         ruCluster: this.props.base_url === ruClusterURL,
+    //         shuffleParams: this.props.make_shuffle,
+    //         baseURL: this.props.base_url,
+    //         panel: this.props.panel,
+    //         linkAmount: this.props.link_amount,
+    //         startPID: this.props.pid_start_with,
+    //         extraParams: this.props.extra_params,
+    //         PIDTemplate: this.props.link_template,
+    //     })
+    // };
+
+
 
 
     // downloadAction = () => <DownloadButton
@@ -82,62 +109,135 @@ class LinkPackAddDialog extends React.Component {
     //     id={this.state.linkPackList[0].id}
     // />;
 
+    // successCallback = responseData => {
+    //     this.props.dialogToggle();
+    //     this.props.reload();
+    //     this.props.showSnackbar(...this.props.successSnackbar);
+    // };
+
+
+    state = {
+        submitMethod: null,
+        submitText: null,
+        titleText: null,
+        apiUrl: null,
+        successCallback: responseData => null,
+    };
+
+    errorCallback = responseData => this.props.showSnackbar(<span style={{color: 'red'}}>{responseData}</span>);
+
     handleSubmit = event => {
         event.preventDefault();
 
         let postBody = {
-            extra_params: this.state.extraParams,
-            link_amount: this.state.linkAmount,
-            pid_start_with: this.state.startPID,
-            link_template: this.state.PIDTemplate,
-            make_shuffle: this.state.shuffleParams,
-            panel: this.state.panel,
+            extra_params: this.props.extraParams,
+            link_amount: this.props.linkAmount,
+            pid_start_with: this.props.startPID,
+            link_template: this.props.PIDTemplate,
+            make_shuffle: this.props.shuffleParams,
+            panel: this.props.panel,
         };
 
-        if (!this.state.ruCluster) {
-            postBody = {...postBody, base_url: this.state.baseURL};
+        if (!this.props.ruCluster) {
+            postBody = {...postBody, base_url: this.props.baseURL};
         }
 
 
-        customFetch(`projects/${this.props.projectName}/linkpacks/`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(postBody)})
+
+        customFetch(this.state.apiUrl, {method: this.state.submitMethod, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(postBody)})
             .then(response => {
 
                 if (response.ok) {
-                    response.json().then(data => this.props.successCallback(data));
+                    response.json().then(data => this.state.successCallback(data));
                 } else {
-                    response.json().then(data => this.props.errorCallback(data));
+                    response.json().then(data => {console.log('DATA', data); this.props.showSnackbar(<span style={{color: 'red'}}>{data}</span>)});
                 }}
             )
             .catch(err => console.log(`project linkpacks ${this.props.projectName} fetch error: `, err));
 
     };
 
+    defineState = () => {
+        switch (this.props.mode) {
+            case 'ADD':
+                this.setState({
+                    submitMethod: 'POST',
+                    submitText: 'Create',
+                    titleText: `Create links for project: ${this.props.projectName}`,
+                    apiUrl: `projects/${this.props.projectName}/linkpacks/`,
+                    successCallback: responseData => {
+                        this.props.dialogToggle();
+                        this.props.reload();
+                        this.props.showSnackbar('Links Created', <DownloadButton color='secondary'{...responseData}/>);
+                    },
+                });
+                break;
+            case 'EDIT':
+                this.setState({
+                    submitMethod: 'PUT',
+                    submitText: 'Save',
+                    titleText: `Edit links for project: ${this.props.projectName}`,
+                    apiUrl: `projects/${this.props.projectName}/linkpacks/${this.props.id}/`,
+                    successCallback: responseData => {
+                        this.props.dialogToggle();
+                        this.props.reload();
+                        this.props.showSnackbar('Changes saved');
+                    },
+                });
+                break;
 
+            case 'COPY':
+                this.setState({
+                    submitMethod: 'POST',
+                    submitText: 'Create',
+                    titleText: `Create links for project: ${this.props.projectName}`,
+                    apiUrl: `projects/${this.props.projectName}/linkpacks/`,
+                    successCallback: responseData => {
+                        this.props.dialogToggle();
+                        this.props.reload();
+                        this.props.showSnackbar('Links Created', <DownloadButton color='secondary'{...responseData}/>);
+                    },
+                });
+                break;
+            default:
+                break;
+        }
 
+    };
+
+    handleParamToggle = param => event => {
+        console.log(param, event);
+        const urlParam = `&${param}=1`;
+        let newExtraParams = event.target.checked? this.props.extraParams + urlParam: this.props.extraParams.replace(urlParam, '');
+        this.props.stateChange({extraParams: newExtraParams});
+    };
 
 
 
     render() {
 
-        console.log('dialog state', this.state, 'props:', this.props);
+        // console.log('dialog state', this.state, 'props:', this.props);
+
 
         return (
             <Dialog
                 fullScreen
                 open={this.props.open}
-                onClose={this.props.handleClose}
+                onClose={this.props.dialogToggle}
                 transition={Transition}
+                onEnter={this.defineState}
             >
                 <AppBar style={styles.appBar}>
                     <Toolbar>
-                        <IconButton color="inherit" onClick={this.props.handleClose} aria-label="Close">
+                        <IconButton color="inherit" onClick={this.props.dialogToggle} aria-label="Close">
                             <CloseIcon />
                         </IconButton>
                         <Typography variant="title" color="inherit" style={styles.flex}>
-                            Create links for project: {this.props.projectName}
+                            {/*Create links for project: {this.props.projectName}*/}
+                            {this.state.titleText}
                         </Typography>
                         <Button color="inherit" onClick={this.handleSubmit}>
-                            Create
+                            {this.state.submitText}
                         </Button>
                     </Toolbar>
                 </AppBar>
@@ -155,8 +255,8 @@ class LinkPackAddDialog extends React.Component {
                             <FormControlLabel
                                 control={
                                     <Switch
-                                        checked={this.state.ruCluster}
-                                        onChange={event => this.setState({ruCluster: event.target.checked})}
+                                        checked={this.props.ruCluster}
+                                        onChange={event => this.props.stateChange({ruCluster: event.target.checked})}
                                         color="primary"
                                     />
                                 }
@@ -168,13 +268,13 @@ class LinkPackAddDialog extends React.Component {
                             <TextField
                                 label="Base URL"
                                 name="baseURL"
-                                error={!URLisValid(this.state.baseURL)}
-                                helperText={!URLisValid(this.state.baseURL) && 'Link is invalid. Must start  with "http(s)://..."'}
+                                error={!URLisValid(this.props.baseURL)}
+                                helperText={!URLisValid(this.props.baseURL) && 'Link is invalid. Must start  with "http(s)://..."'}
                                 type="url"
                                 margin="normal"
-                                value={this.state.baseURL}
-                                onChange={event => this.setState({baseURL: event.target.value})}
-                                disabled={this.state.ruCluster}
+                                value={this.props.baseURL}
+                                onChange={event => this.props.stateChange({baseURL: event.target.value})}
+                                disabled={this.props.ruCluster}
                                 fullWidth
                             />
                         </Grid>
@@ -188,8 +288,8 @@ class LinkPackAddDialog extends React.Component {
                             <TextField
                                 select
                                 label="Panel"
-                                value={this.state.panel}
-                                onChange={event => this.setState({panel: event.target.value})}
+                                value={this.props.panel}
+                                onChange={event => this.props.stateChange({panel: event.target.value})}
                                 // SelectProps={{
                                 //     MenuProps: {
                                 //         className: classes.menu,
@@ -208,30 +308,44 @@ class LinkPackAddDialog extends React.Component {
                         </Grid>
 
 
-                        <Grid item xs={12} sm={5}>
+                        <Grid item xs={12} sm={3}>
                             <TextField
                                 label="PID to start with"
                                 name="startPID"
-                                error={this.state.startPID<1}
-                                helperText={this.state.startPID<1 && 'Enter a number > 0'}
+                                error={this.props.startPID<1}
+                                helperText={this.props.startPID<1 && 'Enter a number > 0'}
                                 type="number"
                                 margin="normal"
-                                value={this.state.startPID}
-                                onChange={event => this.setState({startPID: event.target.value})}
+                                value={this.props.startPID}
+                                onChange={event => this.props.stateChange({startPID: event.target.value})}
                                 fullWidth
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={5}>
+                        <Grid item xs={12} sm={3}>
                             <TextField
                                 label="Link amount"
                                 name="linkAmount"
-                                error={this.state.linkAmount<1}
-                                helperText={this.state.linkAmount<1 && 'Enter a number > 0'}
+                                error={this.props.linkAmount<1}
+                                helperText={this.props.linkAmount<1 && 'Enter a number > 0'}
                                 type="number"
                                 margin="normal"
-                                value={this.state.linkAmount}
-                                onChange={event => this.setState({linkAmount: event.target.value})}
+                                value={this.props.linkAmount}
+                                onChange={event => this.props.stateChange({linkAmount: event.target.value})}
+                                fullWidth
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} sm={4}>
+                            <TextField
+                                label="PID Template"
+                                name="PIDTemplate"
+                                error={!pidTemplateIsValid(this.props.PIDTemplate)}
+                                helperText={!pidTemplateIsValid(this.props.PIDTemplate) && 'Template must contain "{pid}"'}
+                                type="text"
+                                margin="normal"
+                                value={this.props.PIDTemplate}
+                                onChange={event => this.props.stateChange({PIDTemplate: event.target.value})}
                                 fullWidth
                             />
                         </Grid>
@@ -245,8 +359,8 @@ class LinkPackAddDialog extends React.Component {
                             <FormControlLabel
                                 control={
                                     <Switch
-                                        checked={this.state.shuffleParams}
-                                        onChange={event => this.setState({shuffleParams: event.target.checked})}
+                                        checked={this.props.shuffleParams}
+                                        onChange={event => this.props.stateChange({shuffleParams: event.target.checked})}
                                         color="primary"
                                     />
                                 }
@@ -255,33 +369,44 @@ class LinkPackAddDialog extends React.Component {
                         </Grid>
 
 
-                        <Grid item xs={10} sm={4}>
+                        <Grid item xs={2}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={this.props.extraParams.indexOf('&aar=1') !== -1}
+                                        onChange={this.handleParamToggle('aar')}
+                                        color="secondary"
+                                    />
+                                }
+                                label="aar"
+                            />
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={this.props.extraParams.indexOf('&ost=1') !== -1}
+                                        onChange={this.handleParamToggle('ost')}
+                                        color="secondary"
+                                    />
+                                }
+                                label="ost"
+                            />
+                        </Grid>
+
+                        <Grid item xs={8} sm={4}>
                             <TextField
                                 label="Extra Params"
                                 name="extraParams"
-                                error={!queryStringIsValid(this.state.extraParams)}
-                                helperText={!queryStringIsValid(this.state.extraParams) && 'Query string is invalid. Valid format: "&a=1&b=2"'}
+                                error={!queryStringIsValid(this.props.extraParams)}
+                                helperText={!queryStringIsValid(this.props.extraParams) && 'Query string is invalid. Valid format: "&a=1&b=2"'}
                                 type="text"
                                 margin="normal"
-                                value={this.state.extraParams}
-                                onChange={event => this.setState({extraParams: event.target.value})}
+                                value={this.props.extraParams}
+                                onChange={event => this.props.stateChange({extraParams: event.target.value})}
                                 fullWidth
                             />
                         </Grid>
 
-                        <Grid item xs={12} sm={4}>
-                            <TextField
-                                label="PID Template"
-                                name="PIDTemplate"
-                                error={!pidTemplateIsValid(this.state.PIDTemplate)}
-                                helperText={!pidTemplateIsValid(this.state.PIDTemplate) && 'Template must contain "{pid}"'}
-                                type="text"
-                                margin="normal"
-                                value={this.state.PIDTemplate}
-                                onChange={event => this.setState({PIDTemplate: event.target.value})}
-                                fullWidth
-                            />
-                        </Grid>
+
 
                     </Grid>
                 </form>
@@ -291,4 +416,21 @@ class LinkPackAddDialog extends React.Component {
 }
 
 
-export default LinkPackAddDialog;
+const mapStateToProps = state => {
+    return {
+        ...state.linkPackDialogReducer
+    };
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+        showSnackbar: (message, action=null) => dispatch({type: SNACKBAR_SHOW, payload: {action, message, open: true}}),
+        dialogToggle: () => dispatch({type: LINK_PACK_DIALOG_OPEN_TOGGLE}),
+        stateChange: newState => dispatch({type: LINK_PACK_STATE_CHANGE, payload: newState}),
+    }
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(LinkPackAddDialog);

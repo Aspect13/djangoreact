@@ -11,6 +11,7 @@ import SnackBar from "./components/SnackBar";
 
 import {push} from "react-router-redux";
 import ComponentList from "./components/ComponentList";
+import ChangePassword from "./authentication/ChangePassword";
 
 
 
@@ -31,6 +32,7 @@ class App extends Component {
                 <Switch>
                     <Route exact path='/' component={ComponentList}/>
                     <Route exact path='/projects' component={Projects}/>
+                    <Route exact path='/change_password' component={ChangePassword}/>
                     <Route path='/projects/:projectName' component={Project}/>
                 </Switch>
                 <SnackBar/>

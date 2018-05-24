@@ -12,7 +12,7 @@ export const customFetch = async (location, config={}) => {
         headers: {'Authorization': `JWT ${localStorage.getItem(TOKEN_LOCAL_KEY)}`}
     };
     let newConfig = {...defaultConfig, ...config, headers: {...defaultConfig.headers, ...config.headers}};
-    console.log('FETCH CONFIG', newConfig);
+    // console.log('FETCH CONFIG', newConfig);
     let response = await fetch(API_PATH + location, newConfig);
     if (response.status === 401) {
         Store.dispatch(logoutUser());

@@ -67,6 +67,7 @@ class LinkPack(models.Model):
 
 	def save(self, *args, **kwargs):
 		self.full_clean()
+
 		if not self.pk:
 			self.project.link_packs_length += 1
 		self.project.save()
@@ -75,7 +76,7 @@ class LinkPack(models.Model):
 	def delete(self, *args, **kwargs):
 		self.project.link_packs_length -= 1
 		self.project.save()
-		super().save(*args, **kwargs)  # Call the "real" save() method.
+		super().delete(*args, **kwargs)
 
 	@staticmethod
 	def random_shuffle(d):
