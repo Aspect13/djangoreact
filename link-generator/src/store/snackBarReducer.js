@@ -12,6 +12,7 @@ export default function snackBarReducer(state = snackBarInitialState, action) {
             return {...state, ...action.payload};
         case SNACKBAR_RESTORE:
             return snackBarInitialState;
+
         default:
             return state;
     }
