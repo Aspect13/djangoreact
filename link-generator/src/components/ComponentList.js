@@ -2,13 +2,19 @@ import React from 'react';
 import {connect} from "react-redux";
 import {push} from "react-router-redux";
 import {List, ListItem, ListItemIcon, ListItemText} from "material-ui";
-import LinkIcon from 'material-ui-icons/Link';
 import {APPBAR_TITLE_CHANGE} from "../store/actions";
+
+import LinkIcon from 'material-ui-icons/Link';
+import MediaIcon from 'material-ui-icons/PermMedia';
+import SelectAllIcon from 'material-ui-icons/SelectAll';
+
 
 class ComponentList extends React.Component {
     state = {
         components: [
             {name: 'Link Generator', link: '/projects', icon: <ListItemIcon><LinkIcon/></ListItemIcon>, secondaryText: 'Link generation for dimensions'},
+            {name: 'MIndex', link: '/mindex', icon: <ListItemIcon><MediaIcon/></ListItemIcon>, secondaryText: 'MIndex redirects'},
+            {name: 'Bills QR reader', link: '/qrreader', icon: <ListItemIcon><SelectAllIcon/></ListItemIcon>, secondaryText: "Read your bill's qr!"},
         ],
     };
 

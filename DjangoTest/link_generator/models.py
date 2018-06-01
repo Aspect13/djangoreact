@@ -120,7 +120,7 @@ class LinkPack(models.Model):
 		# from time import time
 		io_file = StringIO()
 		# link_file = open('{project_name}_{panel}_links'.format(project_name=self.project.name, panel=self.panel), 'wb')
-		io_file.write('{}\n'.format('\t'.join(['PID', 'SurveyLink'])))
+		io_file.write('{}\r\n'.format('\t'.join(['PID', 'SurveyLink'])))
 		for pid in range(self.pid_start_with, self.pid_start_with + self.link_amount):
 			# self.generate_link(pid)
 			real_pid = self.link_template.format(pid=pid)
@@ -131,7 +131,7 @@ class LinkPack(models.Model):
 
 			lnk = self.get_link(d)
 
-			io_file.write('{pid}\t{survey_link}\n'.format(pid=real_pid, survey_link=lnk))
+			io_file.write('{pid}\t{survey_link}\r\n'.format(pid=real_pid, survey_link=lnk))
 		self.times_downloaded += 1
 		self.save()
 		return io_file.getvalue()

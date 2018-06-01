@@ -6,10 +6,9 @@ import {connect} from "react-redux";
 import loginUser from "./loginHandler";
 import {Redirect} from "react-router-dom";
 import {
-    Button, ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Grid, Paper, TextField, Typography
+    Button, Grid, Paper, TextField, Typography
 } from "material-ui";
 import * as queryString from "../node_modules_bypass/query-string/index";
-import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 
 const styles = {
     paper: {

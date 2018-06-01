@@ -12,6 +12,9 @@ import SnackBar from "./components/SnackBar";
 import {push} from "react-router-redux";
 import ComponentList from "./components/ComponentList";
 import ChangePassword from "./authentication/ChangePassword";
+import MIndexProjects from "./components/MIndex/MIndexProjects";
+import MIndexProject from "./components/MIndex/MIndexProject";
+import QRReader from "./components/QRreader/QRReader";
 
 
 
@@ -32,8 +35,11 @@ class App extends Component {
                 <Switch>
                     <Route exact path='/' component={ComponentList}/>
                     <Route exact path='/projects' component={Projects}/>
-                    <Route exact path='/change_password' component={ChangePassword}/>
                     <Route path='/projects/:projectName' component={Project}/>
+                    <Route exact path='/mindex' component={MIndexProjects}/>
+                    <Route path='/mindex/:projectName' component={MIndexProject}/>
+                    <Route exact path='/change_password' component={ChangePassword}/>
+                    <Route exact path='/qrreader' component={QRReader}/>
                 </Switch>
                 <SnackBar/>
             </div>

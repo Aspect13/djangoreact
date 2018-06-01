@@ -18,7 +18,6 @@ import LinkPackAddDialog from "./LinkPackAddDialog";
 import DownloadButton from "./TableActions/DownloadButton";
 import {
     APPBAR_TITLE_CHANGE, LINK_PACK_ADD, LINK_PACK_COPY, LINK_PACK_DIALOG_OPEN_TOGGLE, LINK_PACK_EDIT,
-    LINK_PACK_STATE_CHANGE,
     SNACKBAR_SHOW
 } from "../../store/actions";
 import DeleteLinksButton from "./TableActions/DeleteLinksButton";
@@ -30,7 +29,7 @@ class Project extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            linkPackList: [],
+            calculatedProjectsList: [],
             headers: [
                 {label: 'ID', key: 'id'},
                 {label: 'Created By', key: 'created_by'},
@@ -86,7 +85,7 @@ class Project extends Component {
                 return response.json()
             }).then(data => {
                 console.log(`project linkpacks ${this.props.match.params.projectName} fetch data`, data);
-                this.setState({linkPackList: data});
+                this.setState({calculatedProjectsList: data});
                 this.setState({isLoading: false});
             })
             .catch(err => console.log(`project linkpacks ${this.props.match.params.projectName} fetch error: `, err));
@@ -106,7 +105,7 @@ class Project extends Component {
     );
 
     getDataRow = rowItem => this.state.headers.map((item, index) =>
-        <TableCell key={index} style={styles.cells}>{_get(rowItem, item.key) || item.component(rowItem)}</TableCell>
+        <TableCell key={index} style={styles.cells}>{(item.component && item.component(rowItem)) || _get(rowItem, item.key)}</TableCell>
     );
 
     tableBody = () => {
@@ -115,7 +114,7 @@ class Project extends Component {
             return <TableRow><TableCell colSpan={this.state.headers.length} style={styles.cells}><CircularProgress size={100} /></TableCell></TableRow>
         }
 
-        if (this.state.linkPackList.length === 0) {
+        if (this.state.calculatedProjectsList.length === 0) {
             return (
                 <TableRow style={styles.cells}>
                     <TableCell colSpan={this.state.headers.length} style={{...styles.cells, ...styles.projectName}}>
@@ -126,7 +125,7 @@ class Project extends Component {
         }
 
 
-        return this.state.linkPackList.map(item =>
+        return this.state.calculatedProjectsList.map(item =>
             <TableRow
                 hover
                 key={item.id}

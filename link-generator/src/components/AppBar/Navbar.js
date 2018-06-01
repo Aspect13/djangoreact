@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {connect} from "react-redux";
-import Logout from "../../deprecated/Logout";
 import {AppBar, IconButton, Toolbar, Tooltip, Typography} from "material-ui";
 import HomeIcon from 'material-ui-icons/Home';
 import {push} from "react-router-redux";

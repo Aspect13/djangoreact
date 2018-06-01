@@ -10,12 +10,10 @@ import {
 import CloseIcon from "material-ui-icons/Close";
 import {customFetch} from "../../api";
 import {
-    APPBAR_TITLE_CHANGE, LINK_PACK_DIALOG_OPEN_TOGGLE, LINK_PACK_STATE_CHANGE,
+    LINK_PACK_DIALOG_OPEN_TOGGLE, LINK_PACK_STATE_CHANGE,
     SNACKBAR_SHOW
 } from "../../store/actions";
 import {connect} from "react-redux";
-import {push} from "react-router-redux";
-import linkPackDialogReducer, {ruClusterURL} from "../../store/linkPackDialogReducer";
 import DownloadButton from "./TableActions/DownloadButton";
 
 const Transition = props => <Slide direction="up" {...props} />;
@@ -105,8 +103,8 @@ class LinkPackAddDialog extends React.Component {
     // downloadAction = () => <DownloadButton
     //     color='secondary'
     //     project={this.props.projectName}
-    //     // id={this.state.linkPackList.sort((a, b) => a.creation_date > b.creation_date ? 1 : -1)[0].id}
-    //     id={this.state.linkPackList[0].id}
+    //     // id={this.state.calculatedProjectsList.sort((a, b) => a.creation_date > b.creation_date ? 1 : -1)[0].id}
+    //     id={this.state.calculatedProjectsList[0].id}
     // />;
 
     // successCallback = responseData => {
@@ -150,7 +148,7 @@ class LinkPackAddDialog extends React.Component {
                 if (response.ok) {
                     response.json().then(data => this.state.successCallback(data));
                 } else {
-                    response.json().then(data => {console.log('DATA', data); this.props.showSnackbar(<span style={{color: 'red'}}>{data}</span>)});
+                    response.json().then(data => this.props.showSnackbar(<span style={{color: 'red'}}>{data}</span>));
                 }}
             )
             .catch(err => console.log(`project linkpacks ${this.props.projectName} fetch error: `, err));
@@ -206,7 +204,7 @@ class LinkPackAddDialog extends React.Component {
     };
 
     handleParamToggle = param => event => {
-        console.log(param, event);
+        // console.log(param, event);
         const urlParam = `&${param}=1`;
         let newExtraParams = event.target.checked? this.props.extraParams + urlParam: this.props.extraParams.replace(urlParam, '');
         this.props.stateChange({extraParams: newExtraParams});

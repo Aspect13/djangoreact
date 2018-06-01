@@ -1,14 +1,20 @@
 import React from 'react';
 import {IconButton, ListItemIcon, ListItemText, Menu, MenuItem} from "material-ui";
 import AccountCircle from 'material-ui-icons/AccountCircle';
-import Logout from "../../deprecated/Logout";
 import ExitToAppIcon from 'material-ui-icons/ExitToApp';
 import FingerprintIcon from 'material-ui-icons/Fingerprint';
 import {connect} from "react-redux";
 import logoutUser from "../../authentication/logoutHandler";
-import {Link} from "react-router-dom";
 import {APPBAR_TITLE_CHANGE} from "../../store/actions";
 import {push} from "react-router-redux";
+
+
+export const parseJWT = token => {
+    let base64Url = token.split('.')[1];
+    let base64 = base64Url.replace('-', '+').replace('_', '/');
+    return JSON.parse(window.atob(base64));
+};
+
 
 class Profile extends React.Component {
 
