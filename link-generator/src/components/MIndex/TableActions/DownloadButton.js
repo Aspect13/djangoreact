@@ -26,7 +26,8 @@ class DownloadButton extends React.Component {
                 color="primary"
                 aria-label="Download Links"
                 onClick={this.handleClick}
-                disabled={this.state.isFetching || this.props.new_completes_count === 0}
+                // disabled={this.state.isFetching || this.props.new_completes_count === 0}
+                disabled={this.state.isFetching}
                 download
                 {...this.props}
             >

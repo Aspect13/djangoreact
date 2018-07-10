@@ -33,7 +33,7 @@ const URLisValid = URLString => /^https?:\/\//.test(URLString);
 const queryStringIsValid = qs => /^(?:&[^=]+=[^=&]+)*$/.test(qs);
 const pidTemplateIsValid = template => /.*{pid}.*/.test(template);
 
-const panels = [
+export const panels = [
     {
         value: 'GEN24',
         label: 'TNS',

@@ -117,28 +117,7 @@ class Project extends Component {
     };
 
 
-
-
-    // deleteProjectHandler = () => {
-    //     customFetch(`projects/${this.props.match.params.projectName}/`, {method: 'DELETE'})
-    //         .then(response => {
-    //             if (response.ok) {
-    //                 this.props.showSnackbar('Project delete success');
-    //                 this.props.move('/projects/')
-    //             } else {
-    //                 this.props.showSnackbar('Project delete error occurred');
-    //             }
-    //         })
-    //         .catch(err => {
-    //             console.log(`project ${this.props.match.params.projectName} project delete error: `, err);
-    //             this.props.showSnackbar('Project delete error occurred');
-    //         });
-
-    // };
-
-
     render() {
-        // console.log(`project ${this.props.match.params.projectName} state`, this.state);
         return (
             <div>
                 <Paper style={styles.paper}>
@@ -161,46 +140,6 @@ class Project extends Component {
                         </TableBody>
                     </Table>
 
-                    {/*<Grid container*/}
-                          {/*spacing={24}*/}
-                          {/*direction="row"*/}
-                          {/*justify="center"*/}
-                          {/*alignItems="center"*/}
-                          {/*style={{margin: 0, width: '100%'}}*/}
-                    {/*>*/}
-                        {/*<Grid item*/}
-                              {/*xs={12}*/}
-                              {/*sm={3}*/}
-                            {/*// md={2}*/}
-                              {/*lg={2}*/}
-                              {/*style={{textAlign: 'center'}}*/}
-                        {/*>*/}
-                            {/*<Button*/}
-                                {/*variant='raised'*/}
-                                {/*color='primary'*/}
-                                {/*onClick={() => this.props.linkPackAdd(this.props.match.params.projectName)}*/}
-                                {/*disabled={!this.state.projectExists}*/}
-                            {/*>*/}
-                                {/*New Link Pack <AddIcon/>*/}
-                            {/*</Button>*/}
-                        {/*</Grid>*/}
-                        {/*<Grid item*/}
-                              {/*xs={12}*/}
-                              {/*sm={3}*/}
-                            {/*// md={2}*/}
-                              {/*lg={2}*/}
-                              {/*style={{textAlign: 'center'}}*/}
-                        {/*>*/}
-                            {/*<Button*/}
-                                {/*variant='raised'*/}
-                                {/*color='secondary'*/}
-                                {/*onClick={this.deleteProjectHandler}*/}
-                                {/*disabled={!this.state.projectExists}*/}
-                            {/*>*/}
-                                {/*Delete project <DeleteIcon/>*/}
-                            {/*</Button>*/}
-                        {/*</Grid>*/}
-                    {/*</Grid>*/}
 
                     <ArchiveJobs
                         projectExists={this.state.projectExists}
@@ -210,14 +149,6 @@ class Project extends Component {
 
 
                 </Paper>
-
-
-                {/*<LinkPackAddDialog*/}
-                    {/*reload={this.loadData}*/}
-                    {/*projectName={this.props.match.params.projectName}*/}
-                {/*/>*/}
-
-
 
             </div>
         );

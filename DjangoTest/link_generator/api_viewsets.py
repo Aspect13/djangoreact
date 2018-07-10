@@ -16,6 +16,7 @@ from link_generator.serializers import ProjectSerializer, LinkPackSerializer, Ch
 from django.core.exceptions import ValidationError as django_ValidationError
 from rest_framework.serializers import ValidationError as serializer_ValidationError
 
+
 class ProjectViewSet(viewsets.ModelViewSet):
 	queryset = Project.objects.all()
 	serializer_class = ProjectSerializer

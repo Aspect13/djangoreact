@@ -1,9 +1,8 @@
 import Store from "./store/Store";
 import logoutUser from "./authentication/logoutHandler";
-
-export const API_PATH = module.hot? 'http://dubrovskiy:8000/api/linkgen/' : 'http://172.30.5.60/api/linkgen/';
-export const MINDEX_API_PATH = module.hot? 'http://127.0.0.1:5000/' : 'http://62.76.89.153/mindex/';
-// export const API_PATH = 'http://dubrovskiy:8000/linkgen/';
+// export const API_PATH = module.hot? 'http://dubrovskiy:8000/api/linkgen/' : 'http://172.30.5.60/api/linkgen/';
+export const API_PATH = module.hot ? 'http://judas/api/linkgen/' : `${window.location.origin}/api/linkgen/`;
+export const MINDEX_API_PATH = module.hot ? 'http://localhost:5000/' : 'http://62.76.89.153/mindex/';
 
 export const TOKEN_LOCAL_KEY = 'jwt';
 

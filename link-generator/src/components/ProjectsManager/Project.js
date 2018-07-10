@@ -84,7 +84,7 @@ class Project extends Component {
                 }
                 return response.json()
             }).then(data => {
-                console.log(`project linkpacks ${this.props.match.params.projectName} fetch data`, data);
+                // console.log(`project linkpacks ${this.props.match.params.projectName} fetch data`, data);
                 this.setState({calculatedProjectsList: data});
                 this.setState({isLoading: false});
             })

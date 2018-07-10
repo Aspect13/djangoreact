@@ -5,6 +5,12 @@ import DownloadIcon from 'material-ui-icons/FileDownload';
 import * as FileSaver from "file-saver";
 import {SNACKBAR_SHOW} from "../../../store/actions";
 import {connect} from "react-redux";
+import {panels} from "../LinkPackAddDialog";
+
+const getPanelLabel = panel => {
+    let filteredObj = panels.filter(item => item.value === panel);
+    return filteredObj[0] ? filteredObj[0].label : panel;
+};
 
 class DownloadButton extends React.Component {
 
@@ -21,7 +27,7 @@ class DownloadButton extends React.Component {
                 if (response.ok) {
                     response.text().then(text => {
                         let blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-                        FileSaver.saveAs(blob, `${this.props.project}_${this.props.panel}_links.txt`);
+                        FileSaver.saveAs(blob, `${this.props.project}_${getPanelLabel(this.props.panel)}(${this.props.panel})_links.txt`);
                     });
                 } else {
                     this.props.showSnackbar('File download error occurred');
